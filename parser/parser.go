@@ -25,6 +25,10 @@ type node struct {
 	token    lexer.Token
 }
 
+func (n *node) AddChild(c *node) {
+	n.children = append(n.children, c)
+}
+
 type block struct {
 	// children []*block
 	symbols map[string]*node
@@ -103,8 +107,8 @@ func (p *parser) parseVar(b *block) *node {
 	if p.current().Type == lexer.T_VAR {
 
 		var (
-			varT    = p.current()
-			varTStr = p.current().Str(p.str)
+			varToken    = p.current()
+			varTokenStr = p.current().Str(p.str)
 		)
 
 		if p.next() {
@@ -116,27 +120,29 @@ func (p *parser) parseVar(b *block) *node {
 			return nil
 		}
 
-		eqT := p.current()
+		equalToken := p.current()
 
 		if p.next() {
 			p.pos = pos
 			return nil
 		}
 
-		eqN := &node{token: eqT}
-		varN := b.lookup(varTStr, varT)
-		varN.parent = eqN
-		eqN.children = append(eqN.children, varN)
-
-		expN := p.parseExpression(b)
-		if expN == nil {
+		expNode := p.parseExpression(b)
+		if expNode == nil {
 			return nil
 		}
 
-		expN.parent = eqN
-		eqN.children = append(eqN.children, expN)
+		equalNode := &node{token: equalToken}
 
-		return eqN
+		varNode := b.lookup(varTokenStr, varToken)
+
+		equalNode.AddChild(varNode)
+		equalNode.AddChild(expNode)
+
+		varNode.parent = equalNode
+		expNode.parent = equalNode
+
+		return equalNode
 	}
 
 	return nil
@@ -168,7 +174,7 @@ func (p *parser) parseExpression(b *block) *node {
 		}
 	}
 
-	left := p.current()
+	leftToken := p.current()
 
 	if p.next() {
 		return nil
@@ -177,33 +183,31 @@ func (p *parser) parseExpression(b *block) *node {
 	// EXP -> EXP OP EXP
 	if p.current().Type == lexer.T_OPS {
 
-		ops := p.current()
+		opsToken := p.current()
 
 		if p.next() {
 			return nil
 		}
 
-		right := p.parseExpression(b)
-		if right == nil {
+		expNode := p.parseExpression(b)
+		if expNode == nil {
 			return nil
 		}
 
-		ret := &node{token: ops}
+		opsNode := &node{token: opsToken}
 
-		right.parent = ret
+		leftNode := b.lookup(leftToken.Str(p.str), leftToken)
 
-		leftN := b.lookup(left.Str(p.str), left)
-		leftN.parent = ret
+		leftNode.parent = opsNode
+		expNode.parent = opsNode
 
-		ret.children = append(ret.children, leftN)
-		ret.children = append(ret.children, right)
+		opsNode.AddChild(leftNode)
+		opsNode.AddChild(expNode)
 
-		return ret
-
+		return opsNode
 	}
 
 	return nil
-
 }
 
 func (p *parser) current() lexer.Token {
