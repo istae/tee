@@ -1,7 +1,5 @@
 package lexer
 
-import "strings"
-
 func (l *lexer) parseKeyword() *Token {
 
 	pos := l.pos
@@ -13,10 +11,10 @@ func (l *lexer) parseKeyword() *Token {
 	}
 
 	// equal
-	if strings.HasPrefix(l.str[l.pos:], "=") {
-		l.next()
-		return &Token{Type: T_EQUAL, Start: pos, End: l.pos}
-	}
+	// if strings.HasPrefix(l.str[l.pos:], "=") {
+	// 	l.next()
+	// 	return &Token{Type: T_EQUAL, Start: pos, End: l.pos}
+	// }
 
 	// comment
 	if l.current() == '/' && l.canPeek() && l.peek() == '/' {

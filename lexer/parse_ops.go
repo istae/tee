@@ -4,7 +4,7 @@ package lexer
 func (l *lexer) parseOps() *Token {
 
 	switch l.current() {
-	case '+', '-', '*', '/':
+	case '+', '-', '*', '/', '=':
 		{
 			t := &Token{Type: T_OPS, Start: l.pos, End: l.pos + 1}
 			l.next()

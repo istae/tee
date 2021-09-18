@@ -67,7 +67,7 @@ func (p *parser) AST(str string, tokens []lexer.Token) error {
 			break
 		}
 
-		n := p.parseVar(rootBlock)
+		n := p.parseExpression(rootBlock)
 		p.printNode(n)
 		if n == nil {
 			return errors.New("asd")
@@ -94,57 +94,6 @@ func (p *parser) printNode(n *node) {
 		fmt.Printf("(%d)\n", i)
 		p.printNode(c)
 	}
-}
-
-/*
-GRAMMER:
-VAR = EXP
-*/
-func (p *parser) parseVar(b *block) *node {
-
-	if p.current().Type != lexer.T_VAR {
-		return nil
-	}
-
-	pos := p.pos
-
-	var (
-		varToken    = p.current()
-		varTokenStr = p.current().Str(p.str)
-	)
-
-	if p.next() {
-		p.pos = pos
-		return nil
-	}
-
-	if p.current().Type != lexer.T_EQUAL {
-		return nil
-	}
-
-	equalToken := p.current()
-
-	if p.next() {
-		p.pos = pos
-		return nil
-	}
-
-	expNode := p.parseExpression(b)
-	if expNode == nil {
-		return nil
-	}
-
-	equalNode := &node{token: equalToken}
-
-	varNode := b.lookup(varTokenStr, varToken)
-
-	equalNode.AddChild(varNode)
-	equalNode.AddChild(expNode)
-
-	varNode.parent = equalNode
-	expNode.parent = equalNode
-
-	return equalNode
 }
 
 /*
@@ -214,3 +163,54 @@ func (p *parser) canPeek() bool {
 func (p *parser) peek() lexer.Token {
 	return p.tokens[p.pos+1]
 }
+
+/*
+GRAMMER:
+VAR = EXP
+*/
+// func (p *parser) parseVar(b *block) *node {
+
+// 	if p.current().Type != lexer.T_VAR {
+// 		return nil
+// 	}
+
+// 	pos := p.pos
+
+// 	var (
+// 		varToken    = p.current()
+// 		varTokenStr = p.current().Str(p.str)
+// 	)
+
+// 	if p.next() {
+// 		p.pos = pos
+// 		return nil
+// 	}
+
+// 	if p.current().Type != lexer.T_EQUAL {
+// 		return nil
+// 	}
+
+// 	equalToken := p.current()
+
+// 	if p.next() {
+// 		p.pos = pos
+// 		return nil
+// 	}
+
+// 	expNode := p.parseExpression(b)
+// 	if expNode == nil {
+// 		return nil
+// 	}
+
+// 	equalNode := &node{token: equalToken}
+
+// 	varNode := b.lookup(varTokenStr, varToken)
+
+// 	equalNode.AddChild(varNode)
+// 	equalNode.AddChild(expNode)
+
+// 	varNode.parent = equalNode
+// 	expNode.parent = equalNode
+
+// 	return equalNode
+// }
