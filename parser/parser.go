@@ -102,50 +102,49 @@ VAR = EXP
 */
 func (p *parser) parseVar(b *block) *node {
 
-	pos := p.pos
-
-	if p.current().Type == lexer.T_VAR {
-
-		var (
-			varToken    = p.current()
-			varTokenStr = p.current().Str(p.str)
-		)
-
-		if p.next() {
-			p.pos = pos
-			return nil
-		}
-
-		if p.current().Type != lexer.T_EQUAL {
-			return nil
-		}
-
-		equalToken := p.current()
-
-		if p.next() {
-			p.pos = pos
-			return nil
-		}
-
-		expNode := p.parseExpression(b)
-		if expNode == nil {
-			return nil
-		}
-
-		equalNode := &node{token: equalToken}
-
-		varNode := b.lookup(varTokenStr, varToken)
-
-		equalNode.AddChild(varNode)
-		equalNode.AddChild(expNode)
-
-		varNode.parent = equalNode
-		expNode.parent = equalNode
-
-		return equalNode
+	if p.current().Type != lexer.T_VAR {
+		return nil
 	}
 
-	return nil
+	pos := p.pos
+
+	var (
+		varToken    = p.current()
+		varTokenStr = p.current().Str(p.str)
+	)
+
+	if p.next() {
+		p.pos = pos
+		return nil
+	}
+
+	if p.current().Type != lexer.T_EQUAL {
+		return nil
+	}
+
+	equalToken := p.current()
+
+	if p.next() {
+		p.pos = pos
+		return nil
+	}
+
+	expNode := p.parseExpression(b)
+	if expNode == nil {
+		return nil
+	}
+
+	equalNode := &node{token: equalToken}
+
+	varNode := b.lookup(varTokenStr, varToken)
+
+	equalNode.AddChild(varNode)
+	equalNode.AddChild(expNode)
+
+	varNode.parent = equalNode
+	expNode.parent = equalNode
+
+	return equalNode
 }
 
 /*
@@ -158,56 +157,45 @@ func (p *parser) parseExpression(b *block) *node {
 		return nil
 	}
 
-	// EXP -> VAR
-	if p.current().Type == lexer.T_VAR {
-		if !p.canPeek() || p.peek().Type != lexer.T_OPS {
-			defer p.next()
-			return b.lookup(p.current().Str(p.str), p.current())
+	if !p.canPeek() || p.peek().Type != lexer.T_OPS {
+		defer p.next()
+
+		if p.current().Type == lexer.T_VAR {
+			return b.lookup(p.current().Str(p.str), p.current()) // EXP -> VAR
+		} else {
+			return &node{token: p.current()} // EXP -> NUM
 		}
 	}
 
-	// EXP -> NUM
-	if p.current().Type == lexer.T_DOUBLE || p.current().Type == lexer.T_INT {
-		if !p.canPeek() || p.peek().Type != lexer.T_OPS {
-			defer p.next()
-			return &node{token: p.current()}
-		}
-	}
-
+	//EXP -> EXP OP EXP
 	leftToken := p.current()
 
 	if p.next() {
 		return nil
 	}
 
-	// EXP -> EXP OP EXP
-	if p.current().Type == lexer.T_OPS {
+	opsToken := p.current()
 
-		opsToken := p.current()
-
-		if p.next() {
-			return nil
-		}
-
-		expNode := p.parseExpression(b)
-		if expNode == nil {
-			return nil
-		}
-
-		opsNode := &node{token: opsToken}
-
-		leftNode := b.lookup(leftToken.Str(p.str), leftToken)
-
-		leftNode.parent = opsNode
-		expNode.parent = opsNode
-
-		opsNode.AddChild(leftNode)
-		opsNode.AddChild(expNode)
-
-		return opsNode
+	if p.next() {
+		return nil
 	}
 
-	return nil
+	expNode := p.parseExpression(b)
+	if expNode == nil {
+		return nil
+	}
+
+	opsNode := &node{token: opsToken}
+
+	leftNode := b.lookup(leftToken.Str(p.str), leftToken)
+
+	leftNode.parent = opsNode
+	expNode.parent = opsNode
+
+	opsNode.AddChild(leftNode)
+	opsNode.AddChild(expNode)
+
+	return opsNode
 }
 
 func (p *parser) current() lexer.Token {

@@ -7,7 +7,7 @@ import (
 )
 
 const test = `
-z = 12 / 3.0
+z = 12 / 3.0 + 5
 `
 
 func main() {
