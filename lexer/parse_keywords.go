@@ -10,12 +10,6 @@ func (l *lexer) parseKeyword() *Token {
 		return &Token{Type: T_NEWLINE, Start: pos, End: l.pos, Str: "\n"}
 	}
 
-	// equal
-	// if strings.HasPrefix(l.str[l.pos:], "=") {
-	// 	l.next()
-	// 	return &Token{Type: T_EQUAL, Start: pos, End: l.pos}
-	// }
-
 	// comment
 	if l.current() == '/' && l.canPeek() && l.peek() == '/' {
 		for {
