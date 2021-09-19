@@ -7,7 +7,7 @@ func (l *lexer) parseKeyword() *Token {
 	// newline
 	if l.current() == '\n' {
 		l.next()
-		return &Token{Type: T_NEWLINE, Start: pos, End: l.pos}
+		return &Token{Type: T_NEWLINE, Start: pos, End: l.pos, Str: "\n"}
 	}
 
 	// equal
@@ -25,7 +25,7 @@ func (l *lexer) parseKeyword() *Token {
 
 			if l.current() == '\n' {
 				l.next()
-				return &Token{Type: T_COMMENT, Start: pos, End: l.pos}
+				return &Token{Type: T_COMMENT, Start: pos, End: l.pos, Str: "//"}
 			}
 		}
 

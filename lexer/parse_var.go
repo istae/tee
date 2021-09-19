@@ -19,5 +19,5 @@ func (l *lexer) parseVar() *Token {
 		}
 	}
 
-	return &Token{Type: T_VAR, Start: pos, End: l.pos}
+	return &Token{Type: T_VAR, Start: pos, End: l.pos, Str: l.str[pos:l.pos]}
 }

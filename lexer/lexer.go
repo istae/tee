@@ -40,10 +40,7 @@ type Token struct {
 	Type  TokenType
 	Start int
 	End   int
-}
-
-func (t Token) Str(s string) string {
-	return s[t.Start:t.End]
+	Str   string
 }
 
 func NewLexer() *lexer {

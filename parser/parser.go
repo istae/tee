@@ -14,6 +14,10 @@ type parser struct {
 	str string
 }
 
+var (
+	precendence = map[string]int{"/": 5, "*": 5, "+": 4, "-": 4}
+)
+
 func NewParser() *parser {
 
 	return &parser{}
@@ -25,8 +29,38 @@ type node struct {
 	token    lexer.Token
 }
 
+// if n has higher precedence
+func (n *node) PrecendenceCmp(x *node) bool {
+
+	xPre := precendence[x.token.Str]
+	// fmt.Printf("%s %d\n", x.token.Str, xPre)
+	if xPre == 0 {
+		return false
+	}
+
+	nPre := precendence[n.token.Str]
+	// fmt.Printf("%s %d\n", n.token.Str, nPre)
+	if nPre == 0 {
+		return false
+	}
+
+	return nPre > xPre
+}
+
 func (n *node) AddChild(c *node) {
+	c.parent = n
 	n.children = append(n.children, c)
+}
+
+func (n *node) LeftChild(c *node) {
+	c.parent = n
+	n.children = append([]*node{c}, n.children...)
+}
+
+func (n *node) PopChild() *node {
+	var c *node
+	c, n.children = n.children[0], n.children[1:]
+	return c
 }
 
 type block struct {
@@ -36,11 +70,11 @@ type block struct {
 	root *node
 }
 
-func (b *block) lookup(s string, t lexer.Token) *node {
-	n := b.symbols[s]
+func (b *block) lookup(t lexer.Token) *node {
+	n := b.symbols[t.Str]
 	if n == nil {
 		n = &node{token: t}
-		b.symbols[s] = n
+		b.symbols[t.Str] = n
 	}
 	return n
 }
@@ -67,7 +101,7 @@ func (p *parser) AST(str string, tokens []lexer.Token) error {
 			break
 		}
 
-		n := p.parseExpression(rootBlock)
+		n := p.parseVar(rootBlock)
 		p.printNode(n)
 		if n == nil {
 			return errors.New("asd")
@@ -84,16 +118,60 @@ func (p *parser) printNode(n *node) {
 		return
 	}
 
-	fmt.Printf("%s\n", n.token.Str(p.str))
+	fmt.Printf("%s id %d", n.token.Str, n.token.Start)
+	if n.parent != nil {
+		fmt.Printf(" <- %d", n.parent.token.Start)
+	}
+	fmt.Println()
 
-	// if n.parent != nil {
-	// 	fmt.Printf("\n->%s\n", n.parent.token.Str(p.str))
-	// }
-
-	for i, c := range n.children {
-		fmt.Printf("(%d)\n", i)
+	for _, c := range n.children {
 		p.printNode(c)
 	}
+}
+
+/*
+GRAMMER:
+VAR = EXP
+*/
+func (p *parser) parseVar(b *block) *node {
+
+	if p.current().Type != lexer.T_VAR {
+		return nil
+	}
+
+	pos := p.pos
+
+	var varToken = p.current()
+
+	if p.next() {
+		p.pos = pos
+		return nil
+	}
+
+	if p.current().Type != lexer.T_EQUAL {
+		return nil
+	}
+
+	equalToken := p.current()
+
+	if p.next() {
+		p.pos = pos
+		return nil
+	}
+
+	expNode := p.parseExpression(b)
+	if expNode == nil {
+		return nil
+	}
+
+	equalNode := &node{token: equalToken}
+
+	varNode := b.lookup(varToken)
+
+	equalNode.AddChild(varNode)
+	equalNode.AddChild(expNode)
+
+	return equalNode
 }
 
 /*
@@ -110,7 +188,7 @@ func (p *parser) parseExpression(b *block) *node {
 		defer p.next()
 
 		if p.current().Type == lexer.T_VAR {
-			return b.lookup(p.current().Str(p.str), p.current()) // EXP -> VAR
+			return b.lookup(p.current()) // EXP -> VAR
 		} else {
 			return &node{token: p.current()} // EXP -> NUM
 		}
@@ -118,6 +196,7 @@ func (p *parser) parseExpression(b *block) *node {
 
 	//EXP -> EXP OP EXP
 	leftToken := p.current()
+	fmt.Println(leftToken.Str)
 
 	if p.next() {
 		return nil
@@ -129,22 +208,45 @@ func (p *parser) parseExpression(b *block) *node {
 		return nil
 	}
 
-	expNode := p.parseExpression(b)
-	if expNode == nil {
+	expressionNode := p.parseExpression(b)
+	if expressionNode == nil {
 		return nil
 	}
 
 	opsNode := &node{token: opsToken}
 
-	leftNode := b.lookup(leftToken.Str(p.str), leftToken)
-
-	leftNode.parent = opsNode
-	expNode.parent = opsNode
+	var leftNode *node
+	if leftToken.Type == lexer.T_VAR {
+		leftNode = b.lookup(leftToken)
+	} else {
+		leftNode = &node{token: leftToken}
+	}
 
 	opsNode.AddChild(leftNode)
-	opsNode.AddChild(expNode)
+
+	// if opsNode has higher presedence than rightNode,
+	/* ex: 3 * 4 + 2
+		*							+
+	3		+					*		2
+		4		2  becomes	3		4
+	*/
+
+	fmt.Printf("%s %s\n", opsNode.token.Str, expressionNode.token.Str)
+	if opsNode.PrecendenceCmp(expressionNode) {
+
+		opsNode.AddChild(expressionNode.PopChild())
+		expressionNode.LeftChild(opsNode)
+
+		return expressionNode
+	}
+
+	opsNode.AddChild(expressionNode)
 
 	return opsNode
+}
+
+func deepestLowerPrecedenceNode(n *node, r *node) {
+
 }
 
 func (p *parser) current() lexer.Token {
@@ -163,54 +265,3 @@ func (p *parser) canPeek() bool {
 func (p *parser) peek() lexer.Token {
 	return p.tokens[p.pos+1]
 }
-
-/*
-GRAMMER:
-VAR = EXP
-*/
-// func (p *parser) parseVar(b *block) *node {
-
-// 	if p.current().Type != lexer.T_VAR {
-// 		return nil
-// 	}
-
-// 	pos := p.pos
-
-// 	var (
-// 		varToken    = p.current()
-// 		varTokenStr = p.current().Str(p.str)
-// 	)
-
-// 	if p.next() {
-// 		p.pos = pos
-// 		return nil
-// 	}
-
-// 	if p.current().Type != lexer.T_EQUAL {
-// 		return nil
-// 	}
-
-// 	equalToken := p.current()
-
-// 	if p.next() {
-// 		p.pos = pos
-// 		return nil
-// 	}
-
-// 	expNode := p.parseExpression(b)
-// 	if expNode == nil {
-// 		return nil
-// 	}
-
-// 	equalNode := &node{token: equalToken}
-
-// 	varNode := b.lookup(varTokenStr, varToken)
-
-// 	equalNode.AddChild(varNode)
-// 	equalNode.AddChild(expNode)
-
-// 	varNode.parent = equalNode
-// 	expNode.parent = equalNode
-
-// 	return equalNode
-// }
