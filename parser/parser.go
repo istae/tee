@@ -26,6 +26,7 @@ func NewParser() *parser {
 		p.parseVar,
 		p.parseNewline,
 		p.parseIf,
+		p.parseFor,
 	}
 
 	return p

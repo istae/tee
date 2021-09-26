@@ -1,5 +1,7 @@
 package lexer
 
+import "strings"
+
 func (l *lexer) parseKeyword() *Token {
 
 	pos := l.pos
@@ -37,21 +39,15 @@ func (l *lexer) parseKeyword() *Token {
 		return &Token{Type: T_CLOSE_BRACKET, Start: pos, End: l.pos, Str: "}"}
 	}
 
-	if l.current() == 'i' && l.canPeek() && l.peek() == 'f' {
-		l.nextN(2)
-
-		if !l.done() && isWhiteSpace(l.current()) {
-			l.next()
-			return &Token{Type: T_IF, Start: pos, End: l.pos, Str: "if"}
-		}
+	if strings.HasPrefix(l.str[l.pos:], "if ") {
+		l.nextN(3)
+		return &Token{Type: T_IF, Start: pos, End: l.pos, Str: "if "}
 	}
 
-	// if strings.HasPrefix(l.str[l.pos:], "for") {
-	// 	l.nextN(3)
-	// 	if l.canPeek() && isSpace(l.peek()) {
-	// 		return &token{Type: T_FOR, str: "for"}
-	// 	}
-	// }
+	if strings.HasPrefix(l.str[l.pos:], "for ") {
+		l.nextN(4)
+		return &Token{Type: T_FOR, Start: pos, End: l.pos, Str: "for "}
+	}
 
 	l.pos = pos
 	return nil

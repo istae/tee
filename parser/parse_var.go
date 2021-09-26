@@ -8,13 +8,18 @@ import (
 GRAMMER:
 VAR = EXP
 */
-func (p *parser) parseVar(b *block) *node {
+func (p *parser) parseVar(b *block) (root *node) {
+
+	pos := p.pos
+	defer func() {
+		if root == nil { // reset pos if tokens cannot be processed
+			p.pos = pos
+		}
+	}()
 
 	if p.current().Type != lexer.T_VAR {
 		return nil
 	}
-
-	pos := p.pos
 
 	var varToken = p.current()
 
@@ -39,11 +44,15 @@ func (p *parser) parseVar(b *block) *node {
 		return nil
 	}
 
+	if p.current().Type != lexer.T_NEWLINE {
+		return nil
+	}
+
+	p.next()
+
 	equalNode := &node{token: equalToken}
 
-	varNode := b.lookup(varToken)
-
-	equalNode.AddChild(varNode)
+	equalNode.AddChild(b.lookup(varToken))
 	equalNode.AddChild(expNode)
 
 	return equalNode

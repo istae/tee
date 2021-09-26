@@ -18,6 +18,10 @@ if x < 2 {
 
 y = x * x
 
+for x < 4 {
+
+}
+
 `
 
 func main() {

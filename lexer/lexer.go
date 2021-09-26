@@ -103,6 +103,10 @@ func (l *lexer) done() bool {
 	return l.pos >= l.end
 }
 
+func (l *lexer) doneN(n int) bool {
+	return (l.pos + n) >= l.end
+}
+
 func (l *lexer) next() bool {
 	l.pos++
 	return l.done()
