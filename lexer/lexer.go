@@ -24,14 +24,21 @@ type TokenType int
 const (
 	T_INT = iota
 	T_DOUBLE
-	T_EQUAL
+
 	T_VAR
-	T_OPS
+
+	T_STRING
+	T_EQUAL
+	T_MATH_OPS
+	T_CMP_OPS
+
 	T_FOR
 	T_IF
 	T_ELSE
+
 	T_OPEN_BRACKET
 	T_CLOSE_BRACKET
+
 	T_NEWLINE
 	T_COMMENT
 )
@@ -47,7 +54,13 @@ func NewLexer() *lexer {
 
 	l := &lexer{}
 
-	l.parsers = []parserFunc{l.parseKeyword, l.parseNum, l.parseVar, l.parseOps}
+	l.parsers = []parserFunc{
+		l.parseKeyword,
+		l.parseNum,
+		l.parseString,
+		l.parseVar,
+		l.parseOps,
+	}
 
 	return l
 
@@ -59,7 +72,7 @@ func (l *lexer) Read(s string) (tokens []Token, err error) {
 
 	for {
 
-		l.skipSpace()
+		l.skipWhiteSpace()
 
 		if l.done() {
 			break
@@ -121,7 +134,7 @@ func isAlpha(b byte) bool {
 	return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
 }
 
-func isSpace(b byte) bool {
+func isWhiteSpace(b byte) bool {
 	switch b {
 	case '\t', '\v', '\f', '\r', ' ', 0x85, 0xA0:
 		return true
@@ -129,9 +142,9 @@ func isSpace(b byte) bool {
 	return false
 }
 
-func (l *lexer) skipSpace() {
+func (l *lexer) skipWhiteSpace() {
 	for ; l.pos < l.end; l.pos++ {
-		if !isSpace(l.str[l.pos]) {
+		if !isWhiteSpace(l.str[l.pos]) {
 			break
 		}
 	}

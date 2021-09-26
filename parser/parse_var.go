@@ -62,11 +62,11 @@ func (p *parser) parseExpression(b *block) (root *node) {
 		}
 	}()
 
-	if p.current().Type != lexer.T_VAR && p.current().Type != lexer.T_DOUBLE && p.current().Type != lexer.T_INT {
+	if p.current().Type != lexer.T_VAR && p.current().Type != lexer.T_DOUBLE && p.current().Type != lexer.T_INT && p.current().Type != lexer.T_STRING {
 		return nil
 	}
 
-	if !p.canPeek() || p.peek().Type != lexer.T_OPS {
+	if !p.canPeek() || (p.peek().Type != lexer.T_MATH_OPS && p.peek().Type != lexer.T_CMP_OPS) {
 		defer p.next()
 
 		if p.current().Type == lexer.T_VAR {

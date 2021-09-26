@@ -6,8 +6,12 @@ import (
 	"tee/lexer"
 )
 
+type parserFunc func(*block) *node
+
 type parser struct {
 	tokens []lexer.Token
+
+	parsers []parserFunc
 
 	pos int
 	end int
@@ -16,7 +20,15 @@ type parser struct {
 
 func NewParser() *parser {
 
-	return &parser{}
+	p := &parser{}
+
+	p.parsers = []parserFunc{
+		p.parseVar,
+		p.parseNewline,
+		p.parseIf,
+	}
+
+	return p
 }
 
 func (p *parser) AST(str string, tokens []lexer.Token) error {
@@ -28,19 +40,29 @@ func (p *parser) AST(str string, tokens []lexer.Token) error {
 	rootBlock := newBlock()
 
 	for {
-		if p.next() {
+		if p.done() {
 			break
 		}
 
-		n := p.parseVar(rootBlock)
+		n := p.parse(rootBlock)
 		p.printNode(n)
 		if n == nil {
-			return errors.New("asd")
+			return errors.New("~~ERROR~~")
 		}
+		rootBlock.AddNode(n)
 	}
 
 	return nil
 
+}
+
+func (p *parser) parse(b *block) *node {
+	for _, p := range p.parsers {
+		if t := p(b); t != nil {
+			return t
+		}
+	}
+	return nil
 }
 
 func (p *parser) printNode(n *node) {
@@ -66,6 +88,10 @@ func (p *parser) current() lexer.Token {
 
 func (p *parser) next() bool {
 	p.pos++
+	return p.pos >= p.end
+}
+
+func (p *parser) done() bool {
 	return p.pos >= p.end
 }
 
