@@ -20,6 +20,7 @@ func (b *block) lookup(t lexer.Token) *node {
 
 func (b *block) AddNode(n *node) {
 	b.nodes = append(b.nodes, n)
+	n.block = b
 }
 
 func (b *block) AddChild(child *block) {

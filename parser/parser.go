@@ -32,7 +32,7 @@ func NewParser() *parser {
 	return p
 }
 
-func (p *parser) AST(str string, tokens []lexer.Token) error {
+func (p *parser) AST(str string, tokens []lexer.Token) (*block, error) {
 
 	p.end = len(tokens)
 	p.tokens = tokens
@@ -48,13 +48,12 @@ func (p *parser) AST(str string, tokens []lexer.Token) error {
 		n := p.parse(rootBlock)
 		p.printNode(n)
 		if n == nil {
-			return errors.New("~~ERROR~~")
+			return nil, errors.New("~~ERROR~~")
 		}
 		rootBlock.AddNode(n)
 	}
 
-	return nil
-
+	return rootBlock, nil
 }
 
 func (p *parser) parse(b *block) *node {

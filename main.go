@@ -6,13 +6,23 @@ import (
 	"tee/parser"
 )
 
-const test = `
+const test = `x = 3 + 2`
+
+const test1 = `
 x = 3 + 5 * 2 / 1 + 1 * 2
 x = x + 2
 x = "asd" + 2
 x = x < 2
 
 if x < 2 {
+
+	if y < 3 {
+		for x < 4 {
+			x = z + 12
+			//jkjkj
+		}
+	}
+
 	x = 12 + 4
 }
 
@@ -21,7 +31,6 @@ y = x * x
 for x < 4 {
 
 }
-
 `
 
 func main() {
@@ -35,8 +44,14 @@ func main() {
 
 	p := parser.NewParser()
 
-	err = p.AST(test, t)
+	b, err := p.AST(test, t)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	values := parser.NewEval().Eval(b)
+
+	for _, v := range values {
+		v.Print()
 	}
 }

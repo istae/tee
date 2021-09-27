@@ -10,6 +10,7 @@ type node struct {
 	children []*node
 	parent   *node
 	token    lexer.Token
+	block    *block
 }
 
 // if n has higher precedence

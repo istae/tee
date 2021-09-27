@@ -19,7 +19,7 @@ func (l *lexer) parseNum() *Token {
 		}
 	}
 
-	if l.current() == '.' && l.canPeek() && isDigit(l.peek()) {
+	if !l.done() && l.current() == '.' && l.canPeek() && isDigit(l.peek()) {
 
 		for {
 			if l.next() {

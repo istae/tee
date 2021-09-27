@@ -44,7 +44,7 @@ func (p *parser) parseVar(b *block) (root *node) {
 		return nil
 	}
 
-	if p.current().Type != lexer.T_NEWLINE {
+	if !p.done() && p.current().Type != lexer.T_NEWLINE {
 		return nil
 	}
 
