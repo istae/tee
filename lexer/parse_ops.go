@@ -11,6 +11,7 @@ func (l *lexer) parseOps() *Token {
 	case '=':
 		{
 			if l.canPeek() && l.peek() == '=' {
+				defer l.nextN(2)
 				return &Token{Type: T_CMP_OPS, Start: l.pos, End: l.pos + 2, Str: "=="}
 			}
 			defer l.next()

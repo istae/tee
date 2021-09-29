@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"tee/lexer"
 )
 
@@ -20,13 +19,9 @@ func (p *parser) parseIf(b *block) (root *node) {
 		return nil
 	}
 
-	fmt.Println("! if !")
-
 	if p.next() {
 		return nil
 	}
-
-	fmt.Println(p.current().Str)
 
 	exp := p.parseExpression(b)
 	if exp == nil {

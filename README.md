@@ -2,6 +2,19 @@
 
 Tee is a very simple language meant for learning the inner mechanisms of compilers (eg: lexers, parsers, etc..). 
 
+Some rules:
+
+1. All numbers are float64
+2. if and for statements share scopes with the parent scope, meaning:
+	```
+	x = 2
+	if ... {
+		x = 3
+	}
+	```
+	the parent x is now 3
+3. Math operators have proper precedence, so * and / are computed properly. 
+
 Currently, here's what can be parsed:
 
 ```

@@ -1,6 +1,8 @@
 package parser
 
-import "tee/lexer"
+import (
+	"tee/lexer"
+)
 
 type block struct {
 	children []*block
@@ -22,7 +24,7 @@ func (b *block) lookup(t lexer.Token) *node {
 
 		n = look.symbols[t.Str]
 		if n == nil {
-			look = b.parent
+			look = look.parent
 		} else {
 			break
 		}

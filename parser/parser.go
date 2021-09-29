@@ -75,7 +75,6 @@ func (p *parser) printNode(n *node) {
 	if n.parent != nil {
 		fmt.Printf(" <- %d", n.parent.token.Start)
 	}
-	fmt.Println()
 
 	for _, c := range n.children {
 		p.printNode(c)

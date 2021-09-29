@@ -54,7 +54,7 @@ func (e *eval) Eval(b *block) (values []*value) {
 
 func (e *eval) result(n *node) *value {
 
-	// fmt.Println(n.token.Str, n.token.Type)
+	fmt.Println(n.token.Str, n.token.Type)
 
 	if n.token.Type == lexer.T_EQUAL {
 		left := e.lookup(n.children[0])
