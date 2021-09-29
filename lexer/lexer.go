@@ -19,28 +19,22 @@ type lexer struct {
 	parsers []parserFunc
 }
 
-type TokenType int
+type TokenType string
 
 const (
-	T_INT = iota
-	T_DOUBLE
-
-	T_VAR
-
-	T_STRING
-	T_EQUAL
-	T_MATH_OPS
-	T_CMP_OPS
-
-	T_FOR
-	T_IF
-	T_ELSE
-
-	T_OPEN_BRACKET
-	T_CLOSE_BRACKET
-
-	T_NEWLINE
-	T_COMMENT
+	T_NUM           = "T_NUM"
+	T_VAR           = "T_VAR"
+	T_STRING        = "T_STRING"
+	T_EQUAL         = "T_EQUAL"
+	T_MATH_OPS      = "T_MATH_OPS"
+	T_CMP_OPS       = "T_CMP_OPS"
+	T_FOR           = "T_FOR"
+	T_IF            = "T_IF"
+	T_ELSE          = "T_ELSE"
+	T_OPEN_BRACKET  = "T_OPEN_BRACKET"
+	T_CLOSE_BRACKET = "T_CLOSE_BRACKET"
+	T_NEWLINE       = "T_NEWLINE"
+	T_COMMENT       = "T_COMMENT"
 )
 
 type Token struct {

@@ -42,6 +42,7 @@ func (p *parser) parseFor(b *block) (root *node) {
 	}
 
 	forBlock := newBlock()
+	b.AddChild(forBlock)
 
 	for {
 		if p.done() {
@@ -70,8 +71,6 @@ func (p *parser) parseFor(b *block) (root *node) {
 	}
 	n.AddChild(exp)
 	n.AddChild(forBlock.nodes...)
-
-	b.AddChild(forBlock)
 
 	return n
 

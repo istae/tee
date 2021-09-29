@@ -17,9 +17,8 @@ func (l *lexer) parseString() *Token {
 				return &Token{Type: T_STRING, Start: pos, End: l.pos, Str: l.str[pos:l.pos]}
 			}
 		}
-
-		l.pos = pos
 	}
 
+	l.pos = pos
 	return nil
 }

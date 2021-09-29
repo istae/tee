@@ -8,11 +8,12 @@ import (
 
 type value struct {
 	tokenType lexer.TokenType
+	varType   string
 	val       interface{}
 }
 
 func (v value) Print() {
-	fmt.Println(v.val)
+	fmt.Printf("%t - %v\n", v.val, v.val)
 }
 
 type eval struct {
@@ -42,7 +43,10 @@ func (e *eval) lookup(n *node) *value {
 func (e *eval) Eval(b *block) (values []*value) {
 
 	for _, n := range b.nodes {
-		values = append(values, e.result(n))
+		v := e.result(n)
+		v.Print()
+		values = append(values, v)
+		fmt.Println("--------------------------------")
 	}
 
 	return
@@ -50,9 +54,14 @@ func (e *eval) Eval(b *block) (values []*value) {
 
 func (e *eval) result(n *node) *value {
 
+	// fmt.Println(n.token.Str, n.token.Type)
+
 	if n.token.Type == lexer.T_EQUAL {
-		e.lookup(n.children[0]).val = e.result(n.children[1])
-		return e.lookup(n.children[0])
+		left := e.lookup(n.children[0])
+		res := e.result(n.children[1])
+		left.val = res.val
+		left.varType = res.varType
+		return left
 	}
 
 	if n.token.Type == lexer.T_MATH_OPS {
@@ -60,13 +69,89 @@ func (e *eval) result(n *node) *value {
 		left := e.result(n.children[0])
 		right := e.result(n.children[1])
 
-		if left.tokenType == lexer.T_INT && right.tokenType == lexer.T_INT {
-			leftInt, _ := strconv.Atoi(left.val.(string))
-			rightInt, _ := strconv.Atoi(right.val.(string))
-			e.lookup(n).val = leftInt + rightInt
+		fmt.Printf("left %v  right %v\n", left, right)
+
+		e.lookup(n).val = mathOpsFloat(n.token.Str, getFloat(left), getFloat(right))
+		e.lookup(n).varType = "num"
+	}
+
+	if n.token.Type == lexer.T_CMP_OPS {
+
+		left := e.result(n.children[0])
+		right := e.result(n.children[1])
+
+		fmt.Printf("left %v right %v\n", left, right)
+
+		e.lookup(n).val = cmpOpsFloat(n.token.Str, getFloat(left), getFloat(right))
+	}
+
+	if n.token.Type == lexer.T_IF {
+
+		exp := e.result(n.children[0])
+		body := n.children[1:]
+
+		if exp.val.(bool) {
+			for _, b := range body {
+				e.result(b)
+			}
 		}
 
+		e.lookup(n).val = exp.val
+	}
+
+	if n.token.Type == lexer.T_FOR {
+		body := n.children[1:]
+
+		for e.result(n.children[0]).val.(bool) {
+			for _, b := range body {
+				e.result(b)
+			}
+		}
 	}
 
 	return e.lookup(n)
+}
+
+func getFloat(v *value) float64 {
+
+	if v.tokenType == lexer.T_NUM {
+		return toFloat(v.val.(string))
+	}
+
+	if v.varType == "num" {
+		return v.val.(float64)
+	}
+
+	return 0
+}
+
+func mathOpsFloat(ops string, left, right float64) float64 {
+	switch ops {
+	case "+":
+		return left + right
+	case "-":
+		return left - right
+	case "/":
+		return left / right
+	case "*":
+		return left * right
+	}
+	return 0
+}
+
+func cmpOpsFloat(ops string, left, right float64) bool {
+	switch ops {
+	case "<":
+		return left < right
+	case ">":
+		return left > right
+	case "==":
+		return left == right
+	}
+	return false
+}
+
+func toFloat(s string) float64 {
+	f, _ := strconv.ParseFloat(s, 32)
+	return f
 }

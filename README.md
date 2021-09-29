@@ -5,19 +5,20 @@ Tee is a very simple language meant for learning the inner mechanisms of compile
 Currently, here's what can be parsed:
 
 ```
-x = 3 + 5 * 2 / 1 + 1 * 2
-x = x + 2
-x = "asd" + 2
-x = x < 2
-
-if x < 2 {
-	x = 12 + 4
+x = 100.0 + 5.0 * 2.0 + 3.0 / 12.0
+y = 12 - 10 * 2
+z = x * y
+if x > 10.0 {
+	x = 123 * 12
 }
 
-y = x * x
-
-for x < 4 {
-
+for x < 1500 {
+	x = x + 1
 }
+```
 
+To run:
+
+```
+make binary && ./dist/tee
 ```

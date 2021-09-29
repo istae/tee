@@ -71,7 +71,7 @@ func (p *parser) parseExpression(b *block) (root *node) {
 		}
 	}()
 
-	if p.current().Type != lexer.T_VAR && p.current().Type != lexer.T_DOUBLE && p.current().Type != lexer.T_INT && p.current().Type != lexer.T_STRING {
+	if p.current().Type != lexer.T_VAR && p.current().Type != lexer.T_NUM && p.current().Type != lexer.T_STRING {
 		return nil
 	}
 

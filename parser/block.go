@@ -10,11 +10,29 @@ type block struct {
 }
 
 func (b *block) lookup(t lexer.Token) *node {
-	n := b.symbols[t.Str]
+
+	var n *node
+	look := b
+
+	for {
+
+		if look == nil {
+			break
+		}
+
+		n = look.symbols[t.Str]
+		if n == nil {
+			look = b.parent
+		} else {
+			break
+		}
+	}
+
 	if n == nil {
 		n = &node{token: t}
 		b.symbols[t.Str] = n
 	}
+
 	return n
 }
 

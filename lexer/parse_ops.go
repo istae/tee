@@ -1,29 +1,27 @@
 package lexer
 
-// =
 func (l *lexer) parseOps() *Token {
 
 	switch l.current() {
 	case '+', '-', '*', '/':
 		{
-			t := &Token{Type: T_MATH_OPS, Start: l.pos, End: l.pos + 1, Str: l.str[l.pos : l.pos+1]}
-			l.next()
-			return t
+			defer l.next()
+			return &Token{Type: T_MATH_OPS, Start: l.pos, End: l.pos + 1, Str: l.str[l.pos : l.pos+1]}
 		}
 	case '=':
 		{
-			t := &Token{Type: T_EQUAL, Start: l.pos, End: l.pos + 1, Str: "="}
-			l.next()
-			return t
+			if l.canPeek() && l.peek() == '=' {
+				return &Token{Type: T_CMP_OPS, Start: l.pos, End: l.pos + 2, Str: "=="}
+			}
+			defer l.next()
+			return &Token{Type: T_EQUAL, Start: l.pos, End: l.pos + 1, Str: "="}
 		}
 	case '<', '>':
 		{
-			t := &Token{Type: T_CMP_OPS, Start: l.pos, End: l.pos + 1, Str: l.str[l.pos : l.pos+1]}
-			l.next()
-			return t
+			defer l.next()
+			return &Token{Type: T_CMP_OPS, Start: l.pos, End: l.pos + 1, Str: l.str[l.pos : l.pos+1]}
 		}
-	default:
-		return nil
 	}
 
+	return nil
 }
