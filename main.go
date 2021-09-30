@@ -7,11 +7,6 @@ import (
 )
 
 const test = `
-
-x = 100.0 + 5.0 * 2.0 + 3.0 / 12.0
-y = 12 - 10 * 2
-z = x * y
-
 func lol(a,b) {
 	x = 12
 }

@@ -53,13 +53,14 @@ func (p *parser) parseFunc(b *block) (root *node) {
 
 	// no arg func
 	if p.current().Type == lexer.T_CLOSE_PARS {
-
 		goto body
 	}
 
 	if p.current().Type != lexer.T_SYMBOL {
 		return nil
 	}
+
+	args.AddChild(b.lookup(p.current()))
 
 	if p.next() {
 		return nil
@@ -77,6 +78,10 @@ func (p *parser) parseFunc(b *block) (root *node) {
 		} else {
 			break
 		}
+	}
+
+	if p.done() {
+		return nil
 	}
 
 	if p.current().Type != lexer.T_CLOSE_PARS {
@@ -120,8 +125,8 @@ body:
 
 	p.next()
 
-	funcSym.token.Type = lexer.T_FUNC
-	fmt.Printf("func name %s\n", funcSym.token.Str)
+	funcSym.token.Type = lexer.T_FUNC_SYMBOL
+	fmt.Println(funcSym.token)
 
 	funcSym.AddChild(args)
 	funcSym.AddChild(funcBlock.nodes...)
@@ -164,14 +169,18 @@ func (p *parser) parseCall(b *block) (root *node) {
 
 	// no args
 	if p.current().Type == lexer.T_CLOSE_PARS {
+		goto done
+	}
+
+	if p.current().Type != lexer.T_SYMBOL {
 		return nil
 	}
+
+	callSymbol.AddChild(b.lookup(p.current()))
 
 	if p.next() {
 		return nil
 	}
-
-	callSymbol.token.Type = lexer.T_FUNC_CALL
 
 	for {
 		if p.done() {
@@ -187,6 +196,19 @@ func (p *parser) parseCall(b *block) (root *node) {
 		}
 	}
 
+	if p.done() {
+		return nil
+	}
+
+	if p.current().Type != lexer.T_CLOSE_PARS {
+		return nil
+	}
+
+done:
+	p.next()
+
+	callSymbol.token.Type = lexer.T_FUNC_CALL
+	fmt.Println(callSymbol.token)
 	p.next()
 
 	return callSymbol

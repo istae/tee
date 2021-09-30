@@ -41,7 +41,8 @@ const (
 	T_COMMA         = "T_COMMA"
 
 	// non token, parser types
-	T_FUNC_CALL = "T_FUNC_CALL"
+	T_FUNC_CALL   = "T_FUNC_CALL"
+	T_FUNC_SYMBOL = "T_FUNC_SYMBOL"
 )
 
 type Token struct {
