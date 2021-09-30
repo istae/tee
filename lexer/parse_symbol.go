@@ -1,7 +1,7 @@
 package lexer
 
 // [a-b, A-b]+
-func (l *lexer) parseVar() *Token {
+func (l *lexer) parseSymbol() *Token {
 
 	pos := l.pos
 
@@ -19,5 +19,5 @@ func (l *lexer) parseVar() *Token {
 		}
 	}
 
-	return &Token{Type: T_VAR, Start: pos, End: l.pos, Str: l.str[pos:l.pos]}
+	return &Token{Type: T_SYMBOL, Start: pos, End: l.pos, Str: l.str[pos:l.pos]}
 }

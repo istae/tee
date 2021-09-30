@@ -49,6 +49,26 @@ func (l *lexer) parseKeyword() *Token {
 		return &Token{Type: T_FOR, Start: pos, End: l.pos, Str: "for "}
 	}
 
+	if strings.HasPrefix(l.str[l.pos:], "func ") {
+		l.nextN(5)
+		return &Token{Type: T_FUNC, Start: pos, End: l.pos, Str: "func "}
+	}
+
+	if l.current() == '(' {
+		l.next()
+		return &Token{Type: T_OPEN_PARS, Start: pos, End: l.pos, Str: "("}
+	}
+
+	if l.current() == ')' {
+		l.next()
+		return &Token{Type: T_CLOSE_PARS, Start: pos, End: l.pos, Str: ")"}
+	}
+
+	if l.current() == ',' {
+		l.next()
+		return &Token{Type: T_COMMA, Start: pos, End: l.pos, Str: ","}
+	}
+
 	l.pos = pos
 	return nil
 }

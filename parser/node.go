@@ -6,11 +6,30 @@ var (
 	precendence = map[string]int{"/": 5, "*": 5, "+": 4, "-": 4}
 )
 
+type NodeType string
+
+const (
+	T_NUM      = "T_NUM"
+	T_SYMBOL   = "T_SYMBOL"
+	T_STRING   = "T_STRING"
+	T_ASSIGN   = "T_ASSIGN"
+	T_MATH_OPS = "T_MATH_OPS"
+	T_CMP_OPS  = "T_CMP_OPS"
+	T_FUNC_DEf = "T_FUNC_DEf"
+
+	T_FOR     = "T_FOR"
+	T_IF      = "T_IF"
+	T_ELSE    = "T_ELSE"
+	T_NEWLINE = "T_NEWLINE"
+	T_COMMENT = "T_COMMENT"
+)
+
 type node struct {
 	children []*node
 	parent   *node
 	token    lexer.Token
-	block    *block
+	// Type  NodeType
+	block *block
 }
 
 // if n has higher precedence

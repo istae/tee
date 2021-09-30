@@ -8,7 +8,7 @@ import (
 GRAMMER:
 VAR = EXP
 */
-func (p *parser) parseVar(b *block) (root *node) {
+func (p *parser) parseAssign(b *block) (root *node) {
 
 	pos := p.pos
 	defer func() {
@@ -17,7 +17,7 @@ func (p *parser) parseVar(b *block) (root *node) {
 		}
 	}()
 
-	if p.current().Type != lexer.T_VAR {
+	if p.current().Type != lexer.T_SYMBOL {
 		return nil
 	}
 
@@ -44,7 +44,7 @@ func (p *parser) parseVar(b *block) (root *node) {
 		return nil
 	}
 
-	if !p.done() && p.current().Type != lexer.T_NEWLINE {
+	if !p.done() && !(p.current().Type == lexer.T_NEWLINE || p.current().Type == lexer.T_COMMENT) {
 		return nil
 	}
 
@@ -71,14 +71,14 @@ func (p *parser) parseExpression(b *block) (root *node) {
 		}
 	}()
 
-	if p.current().Type != lexer.T_VAR && p.current().Type != lexer.T_NUM && p.current().Type != lexer.T_STRING {
+	if p.current().Type != lexer.T_SYMBOL && p.current().Type != lexer.T_NUM && p.current().Type != lexer.T_STRING {
 		return nil
 	}
 
 	if !p.canPeek() || (p.peek().Type != lexer.T_MATH_OPS && p.peek().Type != lexer.T_CMP_OPS) {
 		defer p.next()
 
-		if p.current().Type == lexer.T_VAR {
+		if p.current().Type == lexer.T_SYMBOL {
 			return b.lookup(p.current()) // EXP -> VAR
 		} else {
 			return &node{token: p.current()} // EXP -> NUM
@@ -106,7 +106,7 @@ func (p *parser) parseExpression(b *block) (root *node) {
 	opsNode := &node{token: opsToken}
 
 	var leftNode *node
-	if leftToken.Type == lexer.T_VAR {
+	if leftToken.Type == lexer.T_SYMBOL {
 		leftNode = b.lookup(leftToken)
 	} else {
 		leftNode = &node{token: leftToken}

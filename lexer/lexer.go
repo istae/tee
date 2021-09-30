@@ -23,18 +23,25 @@ type TokenType string
 
 const (
 	T_NUM           = "T_NUM"
-	T_VAR           = "T_VAR"
+	T_SYMBOL        = "T_SYMBOL"
 	T_STRING        = "T_STRING"
 	T_EQUAL         = "T_EQUAL"
 	T_MATH_OPS      = "T_MATH_OPS"
 	T_CMP_OPS       = "T_CMP_OPS"
+	T_FUNC          = "T_FUNC"
 	T_FOR           = "T_FOR"
 	T_IF            = "T_IF"
 	T_ELSE          = "T_ELSE"
 	T_OPEN_BRACKET  = "T_OPEN_BRACKET"
 	T_CLOSE_BRACKET = "T_CLOSE_BRACKET"
+	T_OPEN_PARS     = "T_OPEN_PARS"
+	T_CLOSE_PARS    = "T_CLOSE_PARS"
 	T_NEWLINE       = "T_NEWLINE"
 	T_COMMENT       = "T_COMMENT"
+	T_COMMA         = "T_COMMA"
+
+	// non token, parser types
+	T_FUNC_CALL = "T_FUNC_CALL"
 )
 
 type Token struct {
@@ -52,7 +59,7 @@ func NewLexer() *lexer {
 		l.parseKeyword,
 		l.parseNum,
 		l.parseString,
-		l.parseVar,
+		l.parseSymbol,
 		l.parseOps,
 	}
 

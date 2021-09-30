@@ -7,6 +7,19 @@ import (
 )
 
 const test = `
+
+x = 100.0 + 5.0 * 2.0 + 3.0 / 12.0
+y = 12 - 10 * 2
+z = x * y
+
+func lol(a,b) {
+	x = 12
+}
+
+lol(a)
+`
+
+const test1 = `
 x = 100.0 + 5.0 * 2.0 + 3.0 / 12.0
 y = 12 - 10 * 2
 z = x * y
@@ -14,36 +27,15 @@ if x > 10.0 {
 	x = 123 * 12
 }
 
+func lol() {
+
+}
+
 for x < 1500 {
 	x = x + 1
-	if x == 1500 {
-		x = 0
+	if x > 1500 {
+		x = 0  // this is a comment
 	}
-}
-`
-
-const test1 = `
-x = 3 + 5 * 2 / 1 + 1 * 2
-x = x + 2
-x = "asd" + 2
-x = x < 2
-
-if x < 2 {
-
-	if y < 3 {
-		for x < 4 {
-			x = z + 12
-			//jkjkj
-		}
-	}
-
-	x = 12 + 4
-}
-
-y = x * x
-
-for x < 4 {
-
 }
 `
 
