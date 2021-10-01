@@ -4,7 +4,7 @@ import (
 	"tee/lexer"
 )
 
-func (p *parser) parseFor(b *block) (root *node) {
+func (p *parser) parseFor(b *Block) (root *Node) {
 
 	pos := p.pos
 	defer func() {
@@ -37,7 +37,7 @@ func (p *parser) parseFor(b *block) (root *node) {
 	}
 
 	forBlock := newBlock()
-	b.AddChild(forBlock)
+	forBlock.Parent(b)
 
 	for {
 		if p.done() {
@@ -61,11 +61,11 @@ func (p *parser) parseFor(b *block) (root *node) {
 
 	p.next()
 
-	n := &node{
-		token: forToken,
+	n := &Node{
+		Token: forToken,
 	}
 	n.AddChild(exp)
-	n.AddChild(forBlock.nodes...)
+	n.AddChild(forBlock.Nodes...)
 
 	return n
 

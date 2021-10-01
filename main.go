@@ -7,11 +7,10 @@ import (
 )
 
 const test = `
-func lol(a,b) {
-	x = 12
-}
+func lol() {
 
-lol(a)
+}
+x = lol(a) + 100.0 + 5.0 * 2.0 + 3.0 / 12.0
 `
 
 const test1 = `
@@ -45,14 +44,14 @@ func main() {
 
 	p := parser.NewParser()
 
-	b, err := p.AST(test, t)
+	_, err = p.AST(test, t)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	values := parser.NewEval().Eval(b)
+	// values := eval.NewEval().Eval(b)
 
-	for _, v := range values {
-		v.Print()
-	}
+	// for _, v := range values {
+	// 	v.Print()
+	// }
 }

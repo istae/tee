@@ -9,7 +9,7 @@ func (l *lexer) parseKeyword() *Token {
 	// newline
 	if l.current() == '\n' {
 		l.next()
-		return &Token{Type: T_NEWLINE, Start: pos, End: l.pos, Str: "\n"}
+		return &Token{Type: T_NEWLINE, Str: "\n"}
 	}
 
 	// comment
@@ -21,7 +21,7 @@ func (l *lexer) parseKeyword() *Token {
 
 			if l.current() == '\n' {
 				l.next()
-				return &Token{Type: T_COMMENT, Start: pos, End: l.pos, Str: "//"}
+				return &Token{Type: T_COMMENT, Str: "//"}
 			}
 		}
 
@@ -31,42 +31,42 @@ func (l *lexer) parseKeyword() *Token {
 
 	if l.current() == '{' {
 		l.next()
-		return &Token{Type: T_OPEN_BRACKET, Start: pos, End: l.pos, Str: "{"}
+		return &Token{Type: T_OPEN_BRACKET, Str: "{"}
 	}
 
 	if l.current() == '}' {
 		l.next()
-		return &Token{Type: T_CLOSE_BRACKET, Start: pos, End: l.pos, Str: "}"}
+		return &Token{Type: T_CLOSE_BRACKET, Str: "}"}
 	}
 
 	if strings.HasPrefix(l.str[l.pos:], "if ") {
 		l.nextN(3)
-		return &Token{Type: T_IF, Start: pos, End: l.pos, Str: "if "}
+		return &Token{Type: T_IF, Str: "if "}
 	}
 
 	if strings.HasPrefix(l.str[l.pos:], "for ") {
 		l.nextN(4)
-		return &Token{Type: T_FOR, Start: pos, End: l.pos, Str: "for "}
+		return &Token{Type: T_FOR, Str: "for "}
 	}
 
 	if strings.HasPrefix(l.str[l.pos:], "func ") {
 		l.nextN(5)
-		return &Token{Type: T_FUNC, Start: pos, End: l.pos, Str: "func "}
+		return &Token{Type: T_FUNC, Str: "func "}
 	}
 
 	if l.current() == '(' {
 		l.next()
-		return &Token{Type: T_OPEN_PARS, Start: pos, End: l.pos, Str: "("}
+		return &Token{Type: T_OPEN_PARS, Str: "("}
 	}
 
 	if l.current() == ')' {
 		l.next()
-		return &Token{Type: T_CLOSE_PARS, Start: pos, End: l.pos, Str: ")"}
+		return &Token{Type: T_CLOSE_PARS, Str: ")"}
 	}
 
 	if l.current() == ',' {
 		l.next()
-		return &Token{Type: T_COMMA, Start: pos, End: l.pos, Str: ","}
+		return &Token{Type: T_COMMA, Str: ","}
 	}
 
 	l.pos = pos

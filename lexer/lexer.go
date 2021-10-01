@@ -40,7 +40,9 @@ const (
 	T_COMMENT       = "T_COMMENT"
 	T_COMMA         = "T_COMMA"
 
-	// non token, parser types
+	// below are not produced by the lexer.
+	// The parser reassigns tokens with the types below accordingly.
+	// Normally, the parser nodes should have node types, but we don't
 	T_FUNC_CALL   = "T_FUNC_CALL"
 	T_FUNC_SYMBOL = "T_FUNC_SYMBOL"
 )
@@ -49,12 +51,13 @@ type Token struct {
 	Type  TokenType
 	Start int
 	End   int
+	Line  int
 	Str   string
 }
 
 func NewLexer() *lexer {
 
-	l := &lexer{}
+	l := &lexer{line: 1}
 
 	l.parsers = []parserFunc{
 		l.parseKeyword,
@@ -80,21 +83,27 @@ func (l *lexer) Read(s string) (tokens []Token, err error) {
 			break
 		}
 
-		t := func() *Token {
-			for _, p := range l.parsers {
-				if t := p(); t != nil {
-					return t
-				}
+		pos := l.pos
+		var t *Token
+
+		for _, p := range l.parsers {
+			if t = p(); t != nil {
+				break
 			}
-			return nil
-		}()
+		}
 
 		if t == nil {
 			err = fmt.Errorf("syntax error at line %d\n%s:%w", l.line, l.str[l.pos:], errSyntax)
 			return
 		} else {
+			t.Start = pos
+			t.End = l.pos
+			t.Line = l.line
 			tokens = append(tokens, *t)
-			fmt.Printf("token: %s\n", l.str[t.Start:t.End])
+			// fmt.Printf("token: %s\n", l.str[t.Start:t.End])
+			if t.Type == T_NEWLINE {
+				l.line++
+			}
 		}
 	}
 

@@ -24,23 +24,23 @@ const (
 	T_COMMENT = "T_COMMENT"
 )
 
-type node struct {
-	children []*node
-	parent   *node
-	token    lexer.Token
+type Node struct {
+	Children []*Node
+	parent   *Node
+	Token    lexer.Token
 	// Type  NodeType
-	block *block
+	block *Block
 }
 
 // if n has higher precedence
-func (n *node) PrecendenceCmp(x *node) bool {
+func (n *Node) PrecendenceCmp(x *Node) bool {
 
-	xPre := precendence[x.token.Str]
+	xPre := precendence[x.Token.Str]
 	if xPre == 0 {
 		return false
 	}
 
-	nPre := precendence[n.token.Str]
+	nPre := precendence[n.Token.Str]
 	if nPre == 0 {
 		return false
 	}
@@ -48,20 +48,20 @@ func (n *node) PrecendenceCmp(x *node) bool {
 	return nPre > xPre
 }
 
-func (n *node) AddChild(children ...*node) {
+func (n *Node) AddChild(children ...*Node) {
 	for _, c := range children {
 		c.parent = n
-		n.children = append(n.children, c)
+		n.Children = append(n.Children, c)
 	}
 }
 
-func (n *node) LeftChild(c *node) {
+func (n *Node) LeftChild(c *Node) {
 	c.parent = n
-	n.children = append([]*node{c}, n.children...)
+	n.Children = append([]*Node{c}, n.Children...)
 }
 
-func (n *node) PopChild() *node {
-	var c *node
-	c, n.children = n.children[0], n.children[1:]
+func (n *Node) PopChild() *Node {
+	var c *Node
+	c, n.Children = n.Children[0], n.Children[1:]
 	return c
 }

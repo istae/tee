@@ -2,19 +2,19 @@ package parser
 
 import "tee/lexer"
 
-func (p *parser) parseNewline(b *block) *node {
+func (p *parser) parseNewline(b *Block) *Node {
 
 	if p.current().Type == lexer.T_NEWLINE {
 		defer p.next()
-		return &node{
-			token: p.current(),
+		return &Node{
+			Token: p.current(),
 		}
 	}
 
 	if p.current().Type == lexer.T_COMMENT {
 		defer p.next()
-		return &node{
-			token: p.current(),
+		return &Node{
+			Token: p.current(),
 		}
 	}
 

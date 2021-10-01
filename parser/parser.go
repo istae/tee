@@ -6,7 +6,7 @@ import (
 	"tee/lexer"
 )
 
-type parserFunc func(*block) *node
+type parserFunc func(*Block) *Node
 
 type parser struct {
 	tokens []lexer.Token
@@ -16,6 +16,8 @@ type parser struct {
 	pos int
 	end int
 	str string
+
+	errStr string
 }
 
 func NewParser() *parser {
@@ -34,7 +36,7 @@ func NewParser() *parser {
 	return p
 }
 
-func (p *parser) AST(str string, tokens []lexer.Token) (*block, error) {
+func (p *parser) AST(str string, tokens []lexer.Token) (*Block, error) {
 
 	p.end = len(tokens)
 	p.tokens = tokens
@@ -48,17 +50,17 @@ func (p *parser) AST(str string, tokens []lexer.Token) (*block, error) {
 		}
 
 		n := p.parse(rootBlock)
-		p.printNode(n)
 		if n == nil {
-			return nil, errors.New("~~parse error~~")
+			return nil, errors.New(p.errStr)
 		}
+		p.printNode(n)
 		rootBlock.AddNode(n)
 	}
 
 	return rootBlock, nil
 }
 
-func (p *parser) parse(b *block) *node {
+func (p *parser) parse(b *Block) *Node {
 	for _, p := range p.parsers {
 		if t := p(b); t != nil {
 			return t
@@ -67,18 +69,28 @@ func (p *parser) parse(b *block) *node {
 	return nil
 }
 
-func (p *parser) printNode(n *node) {
+func (p *parser) undefinedSymbol(t lexer.Token) {
+	p.errStr = fmt.Sprintf("\nundefined symbol %s, line %d\n", t.Str, t.Line)
+}
+
+func (p *parser) multidefinition(t lexer.Token) {
+	p.errStr = fmt.Sprintf("\n symbol %s redefined line %d\n", t.Str, t.Line)
+}
+
+func (p *parser) printNode(n *Node) {
 
 	if n == nil {
 		return
 	}
 
-	fmt.Printf("%s id %d", n.token.Str, n.token.Start)
+	fmt.Printf("%s id %d", n.Token.Str, n.Token.Start)
 	if n.parent != nil {
-		fmt.Printf(" <- %d", n.parent.token.Start)
+		fmt.Printf(" <- %d", n.parent.Token.Start)
 	}
 
-	for _, c := range n.children {
+	fmt.Println()
+
+	for _, c := range n.Children {
 		p.printNode(c)
 	}
 }

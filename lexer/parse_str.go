@@ -14,7 +14,7 @@ func (l *lexer) parseString() *Token {
 
 			if l.current() == '"' {
 				l.next()
-				return &Token{Type: T_STRING, Start: pos, End: l.pos, Str: l.str[pos:l.pos]}
+				return &Token{Type: T_STRING, Str: l.str[pos:l.pos]}
 			}
 		}
 	}

@@ -34,7 +34,7 @@ func (l *lexer) parseNum() *Token {
 		// 	l.pos = pos
 		// 	return nil
 		// }
-		return &Token{Type: T_NUM, Start: pos, End: l.pos, Str: l.str[pos:l.pos]}
+		return &Token{Type: T_NUM, Str: l.str[pos:l.pos]}
 
 	}
 
@@ -43,5 +43,5 @@ func (l *lexer) parseNum() *Token {
 	// 	return nil
 	// }
 
-	return &Token{Type: T_NUM, Start: pos, End: l.pos, Str: l.str[pos:l.pos]}
+	return &Token{Type: T_NUM, Str: l.str[pos:l.pos]}
 }

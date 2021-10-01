@@ -19,5 +19,5 @@ func (l *lexer) parseSymbol() *Token {
 		}
 	}
 
-	return &Token{Type: T_SYMBOL, Start: pos, End: l.pos, Str: l.str[pos:l.pos]}
+	return &Token{Type: T_SYMBOL, Str: l.str[pos:l.pos]}
 }

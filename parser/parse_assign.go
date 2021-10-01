@@ -8,7 +8,7 @@ import (
 GRAMMER:
 VAR = EXP
 */
-func (p *parser) parseAssign(b *block) (root *node) {
+func (p *parser) parseAssign(b *Block) (root *Node) {
 
 	pos := p.pos
 	defer func() {
@@ -50,9 +50,9 @@ func (p *parser) parseAssign(b *block) (root *node) {
 
 	p.next()
 
-	equalNode := &node{token: equalToken}
+	equalNode := &Node{Token: equalToken}
 
-	equalNode.AddChild(b.lookup(varToken))
+	equalNode.AddChild(b.getOrSetNode(varToken))
 	equalNode.AddChild(expNode)
 
 	return equalNode
@@ -62,35 +62,55 @@ func (p *parser) parseAssign(b *block) (root *node) {
 EXP -> VAR | NUM
 EXP -> EXP OP EXP
 */
-func (p *parser) parseExpression(b *block) (root *node) {
+func (p *parser) parseExpression(b *Block) (root *Node) {
 
 	pos := p.pos
 	defer func() {
-		if root == nil { // reset pos if tokens cannot be processed
+		if root == nil {
 			p.pos = pos
 		}
 	}()
 
-	if p.current().Type != lexer.T_SYMBOL && p.current().Type != lexer.T_NUM && p.current().Type != lexer.T_STRING {
+	var leftNode *Node
+
+	t := p.current().Type
+	if t != lexer.T_SYMBOL && t != lexer.T_NUM && t != lexer.T_STRING {
 		return nil
 	}
 
-	if !p.canPeek() || (p.peek().Type != lexer.T_MATH_OPS && p.peek().Type != lexer.T_CMP_OPS) {
-		defer p.next()
+	leftNode = p.parseCall(b)
 
-		if p.current().Type == lexer.T_SYMBOL {
-			return b.lookup(p.current()) // EXP -> VAR
-		} else {
-			return &node{token: p.current()} // EXP -> NUM
+	if leftNode != nil {
+		f := b.getNode(leftNode.Token)
+
+		if f == nil || f.Token.Type != lexer.T_FUNC_SYMBOL {
+			p.undefinedSymbol(leftNode.Token)
+			return nil
 		}
 	}
 
-	//EXP -> EXP OP EXP
-	leftToken := p.current()
-
-	if p.next() {
-		return nil
+	if leftNode == nil {
+		if p.current().Type == lexer.T_NUM || p.current().Type == lexer.T_STRING {
+			leftNode = &Node{Token: p.current()}
+		} else {
+			leftNode = b.getNode(p.current())
+			if leftNode == nil {
+				p.undefinedSymbol(p.current())
+				return nil
+			}
+		}
+		if p.next() {
+			return nil
+		}
 	}
+
+	// EXP -> SYM, // EXP -> NUM
+	if p.done() || (p.current().Type != lexer.T_MATH_OPS && p.current().Type != lexer.T_CMP_OPS) {
+		p.next()
+		return leftNode
+	}
+
+	// EXP -> EXP OP EXP
 
 	opsToken := p.current()
 
@@ -103,14 +123,7 @@ func (p *parser) parseExpression(b *block) (root *node) {
 		return nil
 	}
 
-	opsNode := &node{token: opsToken}
-
-	var leftNode *node
-	if leftToken.Type == lexer.T_SYMBOL {
-		leftNode = b.lookup(leftToken)
-	} else {
-		leftNode = &node{token: leftToken}
-	}
+	opsNode := &Node{Token: opsToken}
 
 	opsNode.AddChild(leftNode)
 
@@ -120,7 +133,6 @@ func (p *parser) parseExpression(b *block) (root *node) {
 	3		+					*		2
 		4		2  becomes	3		4
 	*/
-
 	if opsNode.PrecendenceCmp(expressionNode) {
 
 		opsNode.AddChild(expressionNode.PopChild())

@@ -2,6 +2,13 @@
 
 Tee is a very simple language meant for learning the inner mechanisms of compilers (eg: lexers, parsers, etc..). 
 
+Lexer creates tokens using a list of token parsers. Tokens are essentially non-white-space strings that get
+matched to a certain type, like for, if, =. 
+
+Parser takes these tokens and creates an Abstract Syntax Trees. Function calls, expressions, if statements, etc.. all have different looking trees.
+
+Eval is an interpreter executes the each the code based on the AST. 
+
 Some rules:
 
 1. All numbers are float64
