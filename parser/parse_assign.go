@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"tee/lexer"
 )
 
@@ -82,7 +83,6 @@ func (p *parser) parseExpression(b *Block) (root *Node) {
 
 	if leftNode != nil {
 		f := b.getNode(leftNode.Token)
-
 		if f == nil || f.Token.Type != lexer.T_FUNC_SYMBOL {
 			p.undefinedSymbol(leftNode.Token)
 			return nil
@@ -99,14 +99,15 @@ func (p *parser) parseExpression(b *Block) (root *Node) {
 				return nil
 			}
 		}
+		fmt.Println("pnext", p.current())
 		if p.next() {
 			return nil
 		}
+		fmt.Println("pnext", p.current())
 	}
 
 	// EXP -> SYM, // EXP -> NUM
 	if p.done() || (p.current().Type != lexer.T_MATH_OPS && p.current().Type != lexer.T_CMP_OPS) {
-		p.next()
 		return leftNode
 	}
 

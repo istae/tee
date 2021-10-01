@@ -10,7 +10,8 @@ const test = `
 func lol() {
 
 }
-x = lol(a) + 100.0 + 5.0 * 2.0 + 3.0 / 12.0
+a = 3
+x = lol(a) * 2.0 + 3.0 / 12.0
 `
 
 const test1 = `
