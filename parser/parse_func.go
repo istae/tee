@@ -36,7 +36,7 @@ func (p *parser) parseFunc(b *Block) (root *Node) {
 	funcSym := b.getNode(funcToken)
 
 	if funcSym != nil {
-		p.multidefinition(funcToken)
+		p.multidefinition(funcToken, funcSym.Token)
 		return nil
 	}
 

@@ -3,6 +3,7 @@ package parser
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"tee/lexer"
 )
 
@@ -17,7 +18,7 @@ type parser struct {
 	end int
 	str string
 
-	errStr string
+	err []string
 }
 
 func NewParser() *parser {
@@ -51,9 +52,9 @@ func (p *parser) AST(str string, tokens []lexer.Token) (*Block, error) {
 
 		n := p.parse(rootBlock)
 		if n == nil {
-			return nil, errors.New(p.errStr)
+			return nil, errors.New(strings.Join(p.err, "\n"))
 		}
-		p.printNode(n)
+		// p.printNode(n)
 		rootBlock.AddNode(n)
 	}
 
@@ -70,11 +71,11 @@ func (p *parser) parse(b *Block) *Node {
 }
 
 func (p *parser) undefinedSymbol(t lexer.Token) {
-	p.errStr = fmt.Sprintf("\nundefined symbol %s, line %d\n", t.Str, t.Line)
+	p.err = append(p.err, fmt.Sprintf("undefined symbol %s, line %d", t.Str, t.Line))
 }
 
-func (p *parser) multidefinition(t lexer.Token) {
-	p.errStr = fmt.Sprintf("\n symbol %s redefined line %d\n", t.Str, t.Line)
+func (p *parser) multidefinition(last, first lexer.Token) {
+	p.err = append(p.err, fmt.Sprintf("symbol %s redefined line %d, defined at line %d already", last.Str, last.Line, first.Line))
 }
 
 func (p *parser) printNode(n *Node) {

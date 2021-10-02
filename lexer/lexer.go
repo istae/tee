@@ -93,7 +93,7 @@ func (l *lexer) Read(s string) (tokens []Token, err error) {
 		}
 
 		if t == nil {
-			err = fmt.Errorf("syntax error at line %d\n%s:%w", l.line, l.str[l.pos:], errSyntax)
+			err = fmt.Errorf("at line %d: %w", l.line, errSyntax)
 			return
 		} else {
 			t.Start = pos

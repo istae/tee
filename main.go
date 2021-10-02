@@ -8,10 +8,9 @@ import (
 
 const test = `
 func lol() {
-
+	y = 2
 }
-a = 3
-x = lol(a) * 2.0 + 3.0 / 12.0
+x = y * 2.0 + 3.0 / 12.0
 `
 
 const test1 = `

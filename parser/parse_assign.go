@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"tee/lexer"
 )
 
@@ -25,7 +24,6 @@ func (p *parser) parseAssign(b *Block) (root *Node) {
 	var varToken = p.current()
 
 	if p.next() {
-		p.pos = pos
 		return nil
 	}
 
@@ -36,7 +34,6 @@ func (p *parser) parseAssign(b *Block) (root *Node) {
 	equalToken := p.current()
 
 	if p.next() {
-		p.pos = pos
 		return nil
 	}
 
@@ -53,14 +50,19 @@ func (p *parser) parseAssign(b *Block) (root *Node) {
 
 	equalNode := &Node{Token: equalToken}
 
-	equalNode.AddChild(b.getOrSetNode(varToken))
+	if n := b.getNode(varToken); n != nil && n.Token.Type != lexer.T_SYMBOL {
+		p.multidefinition(varToken, n.Token)
+		return nil
+	}
+
+	equalNode.AddChild(b.setNode(varToken))
 	equalNode.AddChild(expNode)
 
 	return equalNode
 }
 
 /*
-EXP -> VAR | NUM
+EXP -> VAR | NUM | FUNC_CALL
 EXP -> EXP OP EXP
 */
 func (p *parser) parseExpression(b *Block) (root *Node) {
@@ -99,11 +101,9 @@ func (p *parser) parseExpression(b *Block) (root *Node) {
 				return nil
 			}
 		}
-		fmt.Println("pnext", p.current())
 		if p.next() {
 			return nil
 		}
-		fmt.Println("pnext", p.current())
 	}
 
 	// EXP -> SYM, // EXP -> NUM
