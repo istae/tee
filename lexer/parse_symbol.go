@@ -3,8 +3,6 @@ package lexer
 // [a-b, A-b]+
 func (l *lexer) parseSymbol() *Token {
 
-	pos := l.pos
-
 	if !isAlpha(l.current()) {
 		return nil
 	}
@@ -19,5 +17,5 @@ func (l *lexer) parseSymbol() *Token {
 		}
 	}
 
-	return &Token{Type: T_SYMBOL, Str: l.str[pos:l.pos]}
+	return &Token{Type: T_SYMBOL}
 }

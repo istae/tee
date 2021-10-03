@@ -2,14 +2,14 @@ package main
 
 import (
 	"log"
+	"tee/eval"
 	"tee/lexer"
 	"tee/parser"
 )
 
 const test = `
-func lol() {
-	y = 2
-}
+y = 2 
+if y > 1 { y = 3 }
 x = y * 2.0 + 3.0 / 12.0
 `
 
@@ -44,12 +44,12 @@ func main() {
 
 	p := parser.NewParser()
 
-	_, err = p.AST(test, t)
+	b, err := p.AST(test, t)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// values := eval.NewEval().Eval(b)
+	_ = eval.NewEval().Eval(b)
 
 	// for _, v := range values {
 	// 	v.Print()

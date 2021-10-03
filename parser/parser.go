@@ -52,13 +52,23 @@ func (p *parser) AST(str string, tokens []lexer.Token) (*Block, error) {
 
 		n := p.parse(rootBlock)
 		if n == nil {
-			return nil, errors.New(strings.Join(p.err, "\n"))
+			return nil, p.generateErr()
 		}
-		// p.printNode(n)
+		p.printNode(n)
 		rootBlock.AddNode(n)
 	}
 
 	return rootBlock, nil
+}
+
+func (p *parser) generateErr() error {
+
+	str := strings.Join(p.err, "\n")
+	if len(str) == 0 {
+		return fmt.Errorf("unknown error around %s at line %d", p.current().Str, p.current().Line)
+	} else {
+		return errors.New(str)
+	}
 }
 
 func (p *parser) parse(b *Block) *Node {

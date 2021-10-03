@@ -42,11 +42,11 @@ func (p *parser) parseAssign(b *Block) (root *Node) {
 		return nil
 	}
 
-	if !p.done() && !(p.current().Type == lexer.T_NEWLINE || p.current().Type == lexer.T_COMMENT) {
+	if !p.done() && !(p.current().Type == lexer.T_NEWLINE || p.current().Type == lexer.T_COMMENT || p.current().Type == lexer.T_CLOSE_BRACKET) {
 		return nil
 	}
 
-	p.next()
+	// p.next()
 
 	equalNode := &Node{Token: equalToken}
 
@@ -55,7 +55,7 @@ func (p *parser) parseAssign(b *Block) (root *Node) {
 		return nil
 	}
 
-	equalNode.AddChild(b.setNode(varToken))
+	equalNode.AddChild(b.getOrSetNode(varToken))
 	equalNode.AddChild(expNode)
 
 	return equalNode

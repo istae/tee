@@ -7,14 +7,21 @@ import (
 	"tee/parser"
 )
 
+type valueType string
+
+const (
+	num     valueType = "num"
+	boolean valueType = "bool"
+)
+
 type value struct {
-	tokenType lexer.TokenType
-	varType   string
-	val       interface{}
+	token   lexer.Token
+	valType valueType
+	val     interface{}
 }
 
 func (v value) Print() {
-	fmt.Printf("%t - %v\n", v.val, v.val)
+	fmt.Printf("%v %t - %v\n", v.token, v.val, v.val)
 }
 
 type eval struct {
@@ -35,7 +42,12 @@ func (e *eval) lookup(n *parser.Node) *value {
 		return v
 	}
 
-	v = &value{tokenType: n.Token.Type, val: n.Token.Str}
+	v = &value{token: n.Token, val: n.Token.Str}
+	if n.Token.Type == lexer.T_NUM {
+		v.val = toFloat(n.Token.Str)
+		v.valType = "num"
+	}
+
 	e.evals[n] = v
 
 	return v
@@ -45,9 +57,9 @@ func (e *eval) Eval(b *parser.Block) (values []*value) {
 
 	for _, n := range b.Nodes {
 		v := e.result(n)
-		v.Print()
+		// v.Print()
 		values = append(values, v)
-		fmt.Println("--------------------------------")
+		// fmt.Println("--------------------------------")
 	}
 
 	return
@@ -55,13 +67,14 @@ func (e *eval) Eval(b *parser.Block) (values []*value) {
 
 func (e *eval) result(n *parser.Node) *value {
 
-	fmt.Println(n.Token.Str, n.Token.Type)
+	// fmt.Println(n.Token)
 
 	if n.Token.Type == lexer.T_EQUAL {
 		left := e.lookup(n.Children[0])
 		res := e.result(n.Children[1])
 		left.val = res.val
-		left.varType = res.varType
+		left.valType = res.valType
+		fmt.Printf("equal: %v\n", left)
 		return left
 	}
 
@@ -70,10 +83,10 @@ func (e *eval) result(n *parser.Node) *value {
 		left := e.result(n.Children[0])
 		right := e.result(n.Children[1])
 
-		fmt.Printf("left %v  right %v\n", left, right)
+		fmt.Printf("ops: %s %v %v\n", n.Token.Str, left, right)
 
 		e.lookup(n).val = mathOpsFloat(n.Token.Str, getFloat(left), getFloat(right))
-		e.lookup(n).varType = "num"
+		e.lookup(n).valType = num
 	}
 
 	if n.Token.Type == lexer.T_CMP_OPS {
@@ -81,9 +94,10 @@ func (e *eval) result(n *parser.Node) *value {
 		left := e.result(n.Children[0])
 		right := e.result(n.Children[1])
 
-		fmt.Printf("left %v right %v\n", left, right)
+		fmt.Printf("cmp: %s %v %v\n", n.Token.Str, left, right)
 
 		e.lookup(n).val = cmpOpsFloat(n.Token.Str, getFloat(left), getFloat(right))
+		e.lookup(n).valType = boolean
 	}
 
 	if n.Token.Type == lexer.T_IF {
@@ -91,13 +105,13 @@ func (e *eval) result(n *parser.Node) *value {
 		exp := e.result(n.Children[0])
 		body := n.Children[1:]
 
+		fmt.Printf("exp: %v\n", exp.val)
+
 		if exp.val.(bool) {
 			for _, b := range body {
 				e.result(b)
 			}
 		}
-
-		e.lookup(n).val = exp.val
 	}
 
 	if n.Token.Type == lexer.T_FOR {
@@ -115,11 +129,13 @@ func (e *eval) result(n *parser.Node) *value {
 
 func getFloat(v *value) float64 {
 
-	if v.tokenType == lexer.T_NUM {
-		return toFloat(v.val.(string))
+	// fmt.Println("getFloat", v.token)
+
+	if v.token.Type == lexer.T_NUM {
+		return v.val.(float64)
 	}
 
-	if v.varType == "num" {
+	if v.valType == num {
 		return v.val.(float64)
 	}
 

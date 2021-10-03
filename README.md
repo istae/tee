@@ -35,6 +35,12 @@ if x > 10.0 {
 for x < 1500 {
 	x = x + 1
 }
+
+func lol() {
+
+}
+
+lol()
 ```
 
 To run:

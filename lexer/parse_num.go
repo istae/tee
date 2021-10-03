@@ -3,8 +3,6 @@ package lexer
 // [0-9]+(.[0-9])?
 func (l *lexer) parseNum() *Token {
 
-	pos := l.pos
-
 	if !isDigit(l.current()) {
 		return nil
 	}
@@ -34,7 +32,7 @@ func (l *lexer) parseNum() *Token {
 		// 	l.pos = pos
 		// 	return nil
 		// }
-		return &Token{Type: T_NUM, Str: l.str[pos:l.pos]}
+		return &Token{Type: T_NUM}
 
 	}
 
@@ -43,5 +41,5 @@ func (l *lexer) parseNum() *Token {
 	// 	return nil
 	// }
 
-	return &Token{Type: T_NUM, Str: l.str[pos:l.pos]}
+	return &Token{Type: T_NUM}
 }

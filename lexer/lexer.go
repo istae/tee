@@ -99,8 +99,9 @@ func (l *lexer) Read(s string) (tokens []Token, err error) {
 			t.Start = pos
 			t.End = l.pos
 			t.Line = l.line
+			t.Str = l.str[pos:l.pos]
+			fmt.Printf("token: %v\n", t)
 			tokens = append(tokens, *t)
-			// fmt.Printf("token: %s\n", l.str[t.Start:t.End])
 			if t.Type == T_NEWLINE {
 				l.line++
 			}

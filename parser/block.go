@@ -70,12 +70,11 @@ func (b *Block) AddNode(n *Node) {
 	n.block = b
 }
 
-func (b *Block) Parent(parent *Block) {
-	b.parent = parent
+func (b *Block) Parent(p *Block) {
+	b.parent = p
 }
 
 func newBlock() *Block {
-
 	return &Block{
 		symbols: map[string]*Node{},
 	}

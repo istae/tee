@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"tee/lexer"
 )
 
@@ -39,6 +40,8 @@ func (p *parser) parseIf(b *Block) (root *Node) {
 	ifBlock := newBlock()
 	ifBlock.Parent(b)
 
+	fmt.Println(p.current(), p.peek())
+
 	for {
 		if p.done() {
 			break
@@ -54,6 +57,8 @@ func (p *parser) parseIf(b *Block) (root *Node) {
 	if p.done() {
 		return nil
 	}
+
+	fmt.Println(p.current(), p.peek())
 
 	if p.current().Type != lexer.T_CLOSE_BRACKET {
 		return nil

@@ -6,21 +6,21 @@ func (l *lexer) parseOps() *Token {
 	case '+', '-', '*', '/':
 		{
 			defer l.next()
-			return &Token{Type: T_MATH_OPS, Start: l.pos, End: l.pos + 1, Str: l.str[l.pos : l.pos+1]}
+			return &Token{Type: T_MATH_OPS}
 		}
 	case '=':
 		{
 			if l.canPeek() && l.peek() == '=' {
 				defer l.nextN(2)
-				return &Token{Type: T_CMP_OPS, Start: l.pos, End: l.pos + 2, Str: "=="}
+				return &Token{Type: T_CMP_OPS}
 			}
 			defer l.next()
-			return &Token{Type: T_EQUAL, Start: l.pos, End: l.pos + 1, Str: "="}
+			return &Token{Type: T_EQUAL}
 		}
 	case '<', '>':
 		{
 			defer l.next()
-			return &Token{Type: T_CMP_OPS, Start: l.pos, End: l.pos + 1, Str: l.str[l.pos : l.pos+1]}
+			return &Token{Type: T_CMP_OPS}
 		}
 	}
 
