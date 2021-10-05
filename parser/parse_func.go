@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"tee/lexer"
 )
 
@@ -53,8 +54,9 @@ func (p *parser) parseFunc(b *Block) (root *Node) {
 	}
 
 	args := &Node{}
+	var arg *Node
 	funcBlock := newBlock()
-	funcBlock.AddNode(args) // ?
+	// funcBlock.AddNode(args)
 
 	// no arg func
 	if p.current().Type == lexer.T_CLOSE_PARS {
@@ -65,7 +67,8 @@ func (p *parser) parseFunc(b *Block) (root *Node) {
 		return nil
 	}
 
-	args.AddChild(funcBlock.setNode(p.current()))
+	arg = funcBlock.setNode(p.current())
+	args.AddChildAndParent(arg)
 
 	if p.next() {
 		return nil
@@ -78,7 +81,8 @@ func (p *parser) parseFunc(b *Block) (root *Node) {
 
 		if p.current().Type == lexer.T_COMMA && p.canPeek() && p.peek().Type == lexer.T_SYMBOL {
 			p.next()
-			args.AddChild(funcBlock.setNode(p.current()))
+			arg = funcBlock.setNode(p.current())
+			args.AddChildAndParent(arg)
 			p.next()
 		} else {
 			break
@@ -108,6 +112,8 @@ body:
 
 	funcBlock.Parent(b)
 
+	fmt.Println("arg", args.Children[0].Token)
+
 	for {
 		if p.done() {
 			break
@@ -115,7 +121,10 @@ body:
 
 		n := p.parse(funcBlock)
 		if n == nil {
+			fmt.Println("func create n nil, next", p.current())
 			break
+		} else {
+			fmt.Println(n.Token)
 		}
 		funcBlock.AddNode(n)
 	}
@@ -133,8 +142,8 @@ body:
 	funcSym = b.setNode(funcToken)
 	funcSym.Token.Type = lexer.T_FUNC_SYMBOL
 
-	funcSym.AddChild(args)
-	funcSym.AddChild(funcBlock.Nodes...)
+	funcSym.AddChildAndParent(args)
+	funcSym.AddChildAndParent(funcBlock.Nodes...)
 
 	return funcSym
 
@@ -160,6 +169,13 @@ func (p *parser) parseCall(b *Block) (root *Node) {
 		return nil
 	}
 
+	funcSymbol := b.getNode(p.current())
+	if funcSymbol == nil || funcSymbol.Token.Type != lexer.T_FUNC_SYMBOL {
+		fmt.Println("~~~", 174, p.current())
+		p.undefinedSymbol(p.current())
+		return nil
+	}
+
 	if p.next() {
 		return nil
 	}
@@ -177,6 +193,8 @@ func (p *parser) parseCall(b *Block) (root *Node) {
 		Token: callToken,
 	}
 
+	n.AddChild(funcSymbol)
+
 	var arg *Node
 
 	// no args
@@ -184,35 +202,32 @@ func (p *parser) parseCall(b *Block) (root *Node) {
 		goto done
 	}
 
-	if p.current().Type != lexer.T_SYMBOL {
-		return nil
-	}
+	fmt.Println(205, p.current())
 
-	arg = b.getNode(p.current())
+	arg = p.parseExpression(b)
 	if arg == nil {
 		p.undefinedSymbol(p.current())
 		return nil
 	}
 
-	n.AddChild(arg)
+	fmt.Println(213, p.current())
 
-	if p.next() {
-		return nil
-	}
+	n.AddChildAndParent(arg)
 
 	for {
 		if p.done() {
 			break
 		}
 
-		if p.current().Type == lexer.T_COMMA && p.canPeek() && p.peek().Type == lexer.T_SYMBOL {
+		if p.current().Type == lexer.T_COMMA {
 			p.next()
-			arg = b.getNode(p.current())
+			arg = p.parseExpression(b)
 			if arg == nil {
 				p.undefinedSymbol(p.current())
 				return nil
 			}
-			p.next()
+			fmt.Println(231)
+			n.AddChildAndParent(arg)
 		} else {
 			break
 		}
@@ -222,9 +237,13 @@ func (p *parser) parseCall(b *Block) (root *Node) {
 		return nil
 	}
 
+	fmt.Println(242, p.current())
+
 	if p.current().Type != lexer.T_CLOSE_PARS {
 		return nil
 	}
+
+	fmt.Println(248)
 
 done:
 	p.next()

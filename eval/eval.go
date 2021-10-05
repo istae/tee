@@ -124,6 +124,29 @@ func (e *eval) result(n *parser.Node) *value {
 		}
 	}
 
+	if n.Token.Type == lexer.T_FUNC_CALL {
+
+		var argValues []*value
+
+		for _, arg := range n.Children[1:] {
+			argValues = append(argValues, e.result(arg))
+		}
+
+		fNode := n.Children[0]
+		fArgs := fNode.Children[0]
+		fBody := fNode.Children[1:]
+
+		for i, arg := range fArgs.Children {
+			v := e.lookup(arg)
+			v.val = argValues[i].val
+			v.valType = argValues[i].valType
+		}
+
+		for _, b := range fBody {
+			e.result(b)
+		}
+	}
+
 	return e.lookup(n)
 }
 

@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"tee/lexer"
 )
 
@@ -55,8 +56,8 @@ func (p *parser) parseAssign(b *Block) (root *Node) {
 		return nil
 	}
 
-	equalNode.AddChild(b.getOrSetNode(varToken))
-	equalNode.AddChild(expNode)
+	equalNode.AddChildAndParent(b.getOrSetNode(varToken))
+	equalNode.AddChildAndParent(expNode)
 
 	return equalNode
 }
@@ -83,13 +84,13 @@ func (p *parser) parseExpression(b *Block) (root *Node) {
 
 	leftNode = p.parseCall(b)
 
-	if leftNode != nil {
-		f := b.getNode(leftNode.Token)
-		if f == nil || f.Token.Type != lexer.T_FUNC_SYMBOL {
-			p.undefinedSymbol(leftNode.Token)
-			return nil
-		}
-	}
+	// if leftNode != nil {
+	// 	f := b.getNode(leftNode.Token)
+	// 	if f == nil || f.Token.Type != lexer.T_FUNC_SYMBOL {
+	// 		p.undefinedSymbol(leftNode.Token)
+	// 		return nil
+	// 	}
+	// }
 
 	if leftNode == nil {
 		if p.current().Type == lexer.T_NUM || p.current().Type == lexer.T_STRING {
@@ -97,6 +98,7 @@ func (p *parser) parseExpression(b *Block) (root *Node) {
 		} else {
 			leftNode = b.getNode(p.current())
 			if leftNode == nil {
+				fmt.Println("~~~", 101, p.current())
 				p.undefinedSymbol(p.current())
 				return nil
 			}
@@ -126,7 +128,7 @@ func (p *parser) parseExpression(b *Block) (root *Node) {
 
 	opsNode := &Node{Token: opsToken}
 
-	opsNode.AddChild(leftNode)
+	opsNode.AddChildAndParent(leftNode)
 
 	// if opsNode has higher presedence than rightNode,
 	/* ex: 3 * 4 + 2
@@ -136,13 +138,13 @@ func (p *parser) parseExpression(b *Block) (root *Node) {
 	*/
 	if opsNode.PrecendenceCmp(expressionNode) {
 
-		opsNode.AddChild(expressionNode.PopChild())
+		opsNode.AddChildAndParent(expressionNode.PopChild())
 		expressionNode.LeftChild(opsNode)
 
 		return expressionNode
 	}
 
-	opsNode.AddChild(expressionNode)
+	opsNode.AddChildAndParent(expressionNode)
 
 	return opsNode
 }

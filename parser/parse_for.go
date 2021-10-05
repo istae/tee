@@ -64,8 +64,8 @@ func (p *parser) parseFor(b *Block) (root *Node) {
 	n := &Node{
 		Token: forToken,
 	}
-	n.AddChild(exp)
-	n.AddChild(forBlock.Nodes...)
+	n.AddChildAndParent(exp)
+	n.AddChildAndParent(forBlock.Nodes...)
 
 	return n
 

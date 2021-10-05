@@ -69,8 +69,8 @@ func (p *parser) parseIf(b *Block) (root *Node) {
 	n := &Node{
 		Token: ifToken,
 	}
-	n.AddChild(exp)
-	n.AddChild(ifBlock.Nodes...)
+	n.AddChildAndParent(exp)
+	n.AddChildAndParent(ifBlock.Nodes...)
 
 	return n
 

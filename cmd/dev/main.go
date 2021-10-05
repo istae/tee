@@ -8,11 +8,17 @@ import (
 )
 
 const test = `
-y = 2 
-if y > 1 { y = 3 }
-x = y * 2.0 + 3.0 / 12.0
-`
+y = 1
+func lol(a) {
+	if a > 1 {
+		y = a
+	}
+}
 
+lol(3,4)
+
+x = y * 2
+`
 const test1 = `
 x = 100.0 + 5.0 * 2.0 + 3.0 / 12.0
 y = 12 - 10 * 2

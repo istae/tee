@@ -7,6 +7,12 @@ import (
 )
 
 const test = `
+func lol() {
+}
+x = lol()
+`
+
+const test2 = `
 y = 2 
 if y > 1 { y = 3 }
 x = y * 2.0 + 3.0 / 12.0

@@ -48,11 +48,15 @@ func (n *Node) PrecendenceCmp(x *Node) bool {
 	return nPre > xPre
 }
 
-func (n *Node) AddChild(children ...*Node) {
+func (n *Node) AddChildAndParent(children ...*Node) {
 	for _, c := range children {
 		c.parent = n
 		n.Children = append(n.Children, c)
 	}
+}
+
+func (n *Node) AddChild(children ...*Node) {
+	n.Children = append(n.Children, children...)
 }
 
 func (n *Node) LeftChild(c *Node) {
