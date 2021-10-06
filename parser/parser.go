@@ -44,6 +44,7 @@ func (p *parser) AST(str string, tokens []lexer.Token) (*Block, error) {
 	p.str = str
 
 	rootBlock := newBlock()
+	addBuiltInFunc(rootBlock)
 
 	for {
 		if p.done() {
@@ -54,11 +55,18 @@ func (p *parser) AST(str string, tokens []lexer.Token) (*Block, error) {
 		if n == nil {
 			return nil, p.generateErr()
 		}
-		p.printNode(n)
+		// p.printNode(n)
 		rootBlock.AddNode(n)
 	}
 
 	return rootBlock, nil
+}
+
+func addBuiltInFunc(b *Block) {
+	b.setNode(lexer.Token{
+		Type: lexer.T_FUNC_SYMBOL,
+		Str:  "print",
+	})
 }
 
 func (p *parser) generateErr() error {

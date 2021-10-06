@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"tee/lexer"
 )
 
@@ -112,8 +111,6 @@ body:
 
 	funcBlock.Parent(b)
 
-	fmt.Println("arg", args.Children[0].Token)
-
 	for {
 		if p.done() {
 			break
@@ -121,10 +118,8 @@ body:
 
 		n := p.parse(funcBlock)
 		if n == nil {
-			fmt.Println("func create n nil, next", p.current())
 			break
 		} else {
-			fmt.Println(n.Token)
 		}
 		funcBlock.AddNode(n)
 	}
@@ -171,7 +166,6 @@ func (p *parser) parseCall(b *Block) (root *Node) {
 
 	funcSymbol := b.getNode(p.current())
 	if funcSymbol == nil || funcSymbol.Token.Type != lexer.T_FUNC_SYMBOL {
-		fmt.Println("~~~", 174, p.current())
 		p.undefinedSymbol(p.current())
 		return nil
 	}
@@ -202,15 +196,11 @@ func (p *parser) parseCall(b *Block) (root *Node) {
 		goto done
 	}
 
-	fmt.Println(205, p.current())
-
 	arg = p.parseExpression(b)
 	if arg == nil {
 		p.undefinedSymbol(p.current())
 		return nil
 	}
-
-	fmt.Println(213, p.current())
 
 	n.AddChildAndParent(arg)
 
@@ -226,7 +216,6 @@ func (p *parser) parseCall(b *Block) (root *Node) {
 				p.undefinedSymbol(p.current())
 				return nil
 			}
-			fmt.Println(231)
 			n.AddChildAndParent(arg)
 		} else {
 			break
@@ -237,13 +226,9 @@ func (p *parser) parseCall(b *Block) (root *Node) {
 		return nil
 	}
 
-	fmt.Println(242, p.current())
-
 	if p.current().Type != lexer.T_CLOSE_PARS {
 		return nil
 	}
-
-	fmt.Println(248)
 
 done:
 	p.next()

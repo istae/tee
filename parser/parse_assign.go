@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"tee/lexer"
 )
 
@@ -98,7 +97,6 @@ func (p *parser) parseExpression(b *Block) (root *Node) {
 		} else {
 			leftNode = b.getNode(p.current())
 			if leftNode == nil {
-				fmt.Println("~~~", 101, p.current())
 				p.undefinedSymbol(p.current())
 				return nil
 			}

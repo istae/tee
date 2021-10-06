@@ -1,9 +1,16 @@
 package parser
 
-import "tee/lexer"
+import (
+	"fmt"
+	"tee/lexer"
+)
 
 var (
-	precendence = map[string]int{"/": 5, "*": 5, "+": 4, "-": 4}
+	precendence = map[string]int{
+		"/": 5, "*": 5,
+		"+": 4, "-": 4,
+		">": 3, "<": 3,
+	}
 )
 
 type NodeType string
@@ -44,6 +51,8 @@ func (n *Node) PrecendenceCmp(x *Node) bool {
 	if nPre == 0 {
 		return false
 	}
+
+	fmt.Println(x.Token, n.Token)
 
 	return nPre > xPre
 }

@@ -9,10 +9,14 @@ import (
 
 const test = `
 y = 1
-func lol(a) {
-	if a > 1 {
-		y = a
+func lol(a, b) {
+	func x(h,j) {
+		if h / 2 > 1 {
+			print(h/2, j, "\n")
+			y = h * j
+		}	
 	}
+	x(a,b)
 }
 
 lol(3,4)

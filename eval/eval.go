@@ -12,6 +12,7 @@ type valueType string
 const (
 	num     valueType = "num"
 	boolean valueType = "bool"
+	str     valueType = "str"
 )
 
 type value struct {
@@ -45,7 +46,12 @@ func (e *eval) lookup(n *parser.Node) *value {
 	v = &value{token: n.Token, val: n.Token.Str}
 	if n.Token.Type == lexer.T_NUM {
 		v.val = toFloat(n.Token.Str)
-		v.valType = "num"
+		v.valType = num
+	}
+	if n.Token.Type == lexer.T_STRING {
+		s, _ := strconv.Unquote(v.token.Str)
+		v.val = s
+		v.valType = str
 	}
 
 	e.evals[n] = v
@@ -105,7 +111,7 @@ func (e *eval) result(n *parser.Node) *value {
 		exp := e.result(n.Children[0])
 		body := n.Children[1:]
 
-		fmt.Printf("exp: %v\n", exp.val)
+		fmt.Printf("if: %v\n", exp.val)
 
 		if exp.val.(bool) {
 			for _, b := range body {
@@ -125,6 +131,10 @@ func (e *eval) result(n *parser.Node) *value {
 	}
 
 	if n.Token.Type == lexer.T_FUNC_CALL {
+
+		if e.builtInFunc(n) {
+			return nil
+		}
 
 		var argValues []*value
 
@@ -148,6 +158,19 @@ func (e *eval) result(n *parser.Node) *value {
 	}
 
 	return e.lookup(n)
+}
+
+func (e *eval) builtInFunc(n *parser.Node) bool {
+	if n.Token.Str == "print" {
+		for _, arg := range n.Children[1:] {
+			v := e.result(arg)
+			fmt.Println(v.val)
+		}
+
+		return true
+	}
+
+	return false
 }
 
 func getFloat(v *value) float64 {
