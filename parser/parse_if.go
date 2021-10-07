@@ -39,7 +39,7 @@ func (p *parser) parseIf(b *Block) (root *Node) {
 		return nil
 	}
 
-	ifBlock := newBlock()
+	ifBlock := newBlock(ifBlock)
 	ifBlock.Parent(b)
 
 	for {

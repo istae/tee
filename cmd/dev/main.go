@@ -22,6 +22,16 @@ func lol(a, b) {
 lol(3,4)
 
 x = y * 2
+
+i = 0
+for 1 > 0 {
+	i = i + 1
+	if i > 100 {
+		break
+	}
+	print("hello\n")
+}
+print(i)
 `
 const test1 = `
 x = 100.0 + 5.0 * 2.0 + 3.0 / 12.0

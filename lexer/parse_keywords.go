@@ -46,19 +46,26 @@ func (l *lexer) parseKeyword() *Token {
 
 	if strings.HasPrefix(l.str[l.pos:], "for") {
 		l.nextN(3)
-		if isWhiteSpace(l.current()) {
+		if isWhiteSpace(l.current(), false) {
 			return &Token{Type: T_FOR}
 		}
-		goto err
+		l.pos = pos
 	}
 
 	if strings.HasPrefix(l.str[l.pos:], "func") {
 		l.nextN(4)
-		if isWhiteSpace(l.current()) {
+		if isWhiteSpace(l.current(), false) {
 			return &Token{Type: T_FUNC}
 		}
-		goto err
+		l.pos = pos
+	}
 
+	if strings.HasPrefix(l.str[l.pos:], "break") {
+		l.nextN(5)
+		if isWhiteSpace(l.current(), true) {
+			return &Token{Type: T_BREAK}
+		}
+		l.pos = pos
 	}
 
 	if l.current() == '(' {
@@ -76,7 +83,6 @@ func (l *lexer) parseKeyword() *Token {
 		return &Token{Type: T_COMMA}
 	}
 
-err:
 	l.pos = pos
 	return nil
 }

@@ -29,6 +29,7 @@ const (
 	T_MATH_OPS      = "T_MATH_OPS"
 	T_CMP_OPS       = "T_CMP_OPS"
 	T_FUNC          = "T_FUNC"
+	T_BREAK         = "T_BREAK"
 	T_FOR           = "T_FOR"
 	T_IF            = "T_IF"
 	T_ELSE          = "T_ELSE"
@@ -150,17 +151,22 @@ func isAlpha(b byte) bool {
 	return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
 }
 
-func isWhiteSpace(b byte) bool {
+func isWhiteSpace(b byte, nl bool) bool {
 	switch b {
 	case '\t', '\v', '\f', '\r', ' ', 0x85, 0xA0:
 		return true
+	case '\n':
+		if nl {
+			return true
+		}
 	}
+
 	return false
 }
 
 func (l *lexer) skipWhiteSpace() {
 	for ; l.pos < l.end; l.pos++ {
-		if !isWhiteSpace(l.str[l.pos]) {
+		if !isWhiteSpace(l.str[l.pos], false) {
 			break
 		}
 	}

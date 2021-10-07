@@ -26,21 +26,30 @@ Currently, here's what can be parsed:
 
 ```
 x = 100.0 + 5.0 * 2.0 + 3.0 / 12.0
-y = 12 - 10 * 2
-z = x * y
-if x > 10.0 {
-	x = 123 * 12
+y = 1
+func lol(a, b) {
+	func x(h,j) {
+		if h / 2 > 1 {
+			print(h/2, j, "\n")
+			y = h * j
+		}	
+	}
+	x(a,b)
 }
 
-for x < 1500 {
-	x = x + 1
+lol(3,4)
+
+x = y * 2
+
+i = 0
+for 1 > 0 {
+	i = i + 1
+	if i > 100 {
+		break
+	}
+	print("hello\n")
 }
-
-func lol() {
-
-}
-
-lol()
+print(i)
 ```
 
 To run:

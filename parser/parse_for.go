@@ -1,8 +1,30 @@
 package parser
 
 import (
+	"fmt"
 	"tee/lexer"
 )
+
+func (p *parser) parseBreak(b *Block) (root *Node) {
+
+	if p.current().Type == lexer.T_BREAK {
+		look := b.parent
+		for look != nil {
+			if look.blockType == forBlock {
+				fmt.Println(p.current())
+				defer p.next()
+				return &Node{
+					Token: p.current(),
+				}
+			}
+			look = look.parent
+		}
+
+		p.undefinedSymbol(p.current())
+	}
+
+	return nil
+}
 
 func (p *parser) parseFor(b *Block) (root *Node) {
 
@@ -36,7 +58,7 @@ func (p *parser) parseFor(b *Block) (root *Node) {
 		return nil
 	}
 
-	forBlock := newBlock()
+	forBlock := newBlock(forBlock)
 	forBlock.Parent(b)
 
 	for {
@@ -46,6 +68,9 @@ func (p *parser) parseFor(b *Block) (root *Node) {
 
 		n := p.parse(forBlock)
 		if n == nil {
+			if p.current().Type == lexer.T_BREAK {
+				forBlock.AddNode(&Node{Token: p.current()})
+			}
 			break
 		}
 		forBlock.AddNode(n)

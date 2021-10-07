@@ -4,10 +4,19 @@ import (
 	"tee/lexer"
 )
 
+type blockType string
+
+const (
+	forBlock  blockType = "for"
+	ifBlock   blockType = "if"
+	funcBlock blockType = "func"
+)
+
 type Block struct {
-	symbols map[string]*Node
-	parent  *Block
-	Nodes   []*Node
+	symbols   map[string]*Node
+	parent    *Block
+	Nodes     []*Node
+	blockType blockType
 }
 
 func (b *Block) getOrSetNode(t lexer.Token) *Node {
@@ -74,8 +83,9 @@ func (b *Block) Parent(p *Block) {
 	b.parent = p
 }
 
-func newBlock() *Block {
+func newBlock(t blockType) *Block {
 	return &Block{
-		symbols: map[string]*Node{},
+		symbols:   map[string]*Node{},
+		blockType: t,
 	}
 }

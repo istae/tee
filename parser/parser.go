@@ -32,6 +32,7 @@ func NewParser() *parser {
 		p.parseFor,
 		p.parseFunc,
 		p.parseCall,
+		p.parseBreak,
 	}
 
 	return p
@@ -43,7 +44,7 @@ func (p *parser) AST(str string, tokens []lexer.Token) (*Block, error) {
 	p.tokens = tokens
 	p.str = str
 
-	rootBlock := newBlock()
+	rootBlock := newBlock("")
 	addBuiltInFunc(rootBlock)
 
 	for {
@@ -55,6 +56,7 @@ func (p *parser) AST(str string, tokens []lexer.Token) (*Block, error) {
 		if n == nil {
 			return nil, p.generateErr()
 		}
+		p.err = nil
 		// p.printNode(n)
 		rootBlock.AddNode(n)
 	}

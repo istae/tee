@@ -54,7 +54,7 @@ func (p *parser) parseFunc(b *Block) (root *Node) {
 
 	args := &Node{}
 	var arg *Node
-	funcBlock := newBlock()
+	funcBlock := newBlock(funcBlock)
 	// funcBlock.AddNode(args)
 
 	// no arg func

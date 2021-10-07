@@ -27,6 +27,7 @@ func (v value) Print() {
 
 type eval struct {
 	evals map[*parser.Node]*value
+	stack []lexer.Token
 }
 
 func NewEval() *eval {
@@ -68,6 +69,25 @@ func (e *eval) Eval(b *parser.Block) (values []*value) {
 		// fmt.Println("--------------------------------")
 	}
 
+	return
+}
+
+func (e *eval) push(t lexer.Token) {
+	e.stack = append(e.stack, t)
+}
+
+func (e *eval) pop() (ret lexer.Token) {
+	if len(e.stack) > 0 {
+		ret = e.stack[len(e.stack)-1]
+		e.stack = e.stack[:len(e.stack)-1]
+	}
+	return
+}
+
+func (e *eval) peek() (ret lexer.Token) {
+	if len(e.stack) > 0 {
+		ret = e.stack[len(e.stack)-1]
+	}
 	return
 }
 
@@ -120,40 +140,48 @@ func (e *eval) result(n *parser.Node) *value {
 		}
 	}
 
+	if n.Token.Type == lexer.T_BREAK {
+		e.push(n.Token)
+	}
+
 	if n.Token.Type == lexer.T_FOR {
 		body := n.Children[1:]
 
 		for e.result(n.Children[0]).val.(bool) {
 			for _, b := range body {
 				e.result(b)
+				if e.peek().Type == lexer.T_BREAK {
+					e.pop()
+					goto done
+
+				}
 			}
 		}
+	done:
 	}
 
 	if n.Token.Type == lexer.T_FUNC_CALL {
 
-		if e.builtInFunc(n) {
-			return nil
-		}
+		if !e.builtInFunc(n) {
+			var argValues []*value
 
-		var argValues []*value
+			for _, arg := range n.Children[1:] {
+				argValues = append(argValues, e.result(arg))
+			}
 
-		for _, arg := range n.Children[1:] {
-			argValues = append(argValues, e.result(arg))
-		}
+			fNode := n.Children[0]
+			fArgs := fNode.Children[0]
+			fBody := fNode.Children[1:]
 
-		fNode := n.Children[0]
-		fArgs := fNode.Children[0]
-		fBody := fNode.Children[1:]
+			for i, arg := range fArgs.Children {
+				v := e.lookup(arg)
+				v.val = argValues[i].val
+				v.valType = argValues[i].valType
+			}
 
-		for i, arg := range fArgs.Children {
-			v := e.lookup(arg)
-			v.val = argValues[i].val
-			v.valType = argValues[i].valType
-		}
-
-		for _, b := range fBody {
-			e.result(b)
+			for _, b := range fBody {
+				e.result(b)
+			}
 		}
 	}
 
