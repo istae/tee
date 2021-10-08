@@ -72,25 +72,6 @@ func (e *eval) Eval(b *parser.Block) (values []*value) {
 	return
 }
 
-func (e *eval) push(t lexer.Token) {
-	e.stack = append(e.stack, t)
-}
-
-func (e *eval) pop() (ret lexer.Token) {
-	if len(e.stack) > 0 {
-		ret = e.stack[len(e.stack)-1]
-		e.stack = e.stack[:len(e.stack)-1]
-	}
-	return
-}
-
-func (e *eval) peek() (ret lexer.Token) {
-	if len(e.stack) > 0 {
-		ret = e.stack[len(e.stack)-1]
-	}
-	return
-}
-
 func (e *eval) result(n *parser.Node) *value {
 
 	// fmt.Println(n.Token)
@@ -133,15 +114,18 @@ func (e *eval) result(n *parser.Node) *value {
 
 		fmt.Printf("if: %v\n", exp.val)
 
+		if exp.valType != boolean {
+			panic(fmt.Sprintf("line %d if expression not boolean type", n.Token.Line))
+		}
+
 		if exp.val.(bool) {
 			for _, b := range body {
-				e.result(b)
+				v := e.result(b)
+				if v.token.Type == lexer.T_BREAK {
+					return v
+				}
 			}
 		}
-	}
-
-	if n.Token.Type == lexer.T_BREAK {
-		e.push(n.Token)
 	}
 
 	if n.Token.Type == lexer.T_FOR {
@@ -149,11 +133,10 @@ func (e *eval) result(n *parser.Node) *value {
 
 		for e.result(n.Children[0]).val.(bool) {
 			for _, b := range body {
-				e.result(b)
-				if e.peek().Type == lexer.T_BREAK {
-					e.pop()
+				v := e.result(b)
+				fmt.Printf("v: %v\n", v)
+				if v.token.Type == lexer.T_BREAK {
 					goto done
-
 				}
 			}
 		}
@@ -203,7 +186,7 @@ func (e *eval) builtInFunc(n *parser.Node) bool {
 
 func getFloat(v *value) float64 {
 
-	// fmt.Println("getFloat", v.token)
+	fmt.Printf("getFloat %t\n", v.val)
 
 	if v.token.Type == lexer.T_NUM {
 		return v.val.(float64)
@@ -243,6 +226,9 @@ func cmpOpsFloat(ops string, left, right float64) bool {
 }
 
 func toFloat(s string) float64 {
-	f, _ := strconv.ParseFloat(s, 32)
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		panic(err)
+	}
 	return f
 }

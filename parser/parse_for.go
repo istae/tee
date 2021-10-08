@@ -8,7 +8,7 @@ import (
 func (p *parser) parseBreak(b *Block) (root *Node) {
 
 	if p.current().Type == lexer.T_BREAK {
-		look := b.parent
+		look := b
 		for look != nil {
 			if look.blockType == forBlock {
 				fmt.Println(p.current())
@@ -16,6 +16,10 @@ func (p *parser) parseBreak(b *Block) (root *Node) {
 				return &Node{
 					Token: p.current(),
 				}
+			}
+
+			if look.blockType != ifBlock {
+				break
 			}
 			look = look.parent
 		}
