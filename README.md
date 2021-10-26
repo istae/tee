@@ -9,7 +9,7 @@ Parser takes these tokens and creates an Abstract Syntax Trees. Function calls, 
 
 Eval is an interpreter executes the each the code based on the AST. 
 
-Some rules:
+Some notes:
 
 1. All numbers are float64
 2. if and for statements share scopes with the parent scope, meaning:
@@ -22,7 +22,7 @@ Some rules:
 	the parent x is now 3
 3. Math operators have proper precedence, so * and / are computed properly. 
 
-Currently, here's what can be parsed:
+Currently, here's what can be parsed (see also dev/main.go for some test code):
 
 ```
 x = 100.0 + 5.0 * 2.0 + 3.0 / 12.0

@@ -8,6 +8,10 @@ import (
 )
 
 const test = `
+
+true = 1 > 0
+false = 1 < 0
+
 y = 1.12
 func lol(a, b) {
 	func x(h,j) {
@@ -24,11 +28,13 @@ lol(3,4)
 x = y * 2
 
 i = 0
-for 1 > 0 {
+for true {
 	i = i + 1
 	print("hello\n")
 	if i > 100 {
-		break
+		if true {
+			break // this is a comment
+		}
 	}
 }
 print(y)
