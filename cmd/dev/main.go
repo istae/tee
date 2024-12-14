@@ -28,7 +28,7 @@ lol(3,4)
 x = y * 2
 
 i = 0
-for true {
+for i < 100 {
 	i = i + 1
 	print("hello\n")
 	if i > 100 {
@@ -67,6 +67,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	p := parser.NewParser()
 
