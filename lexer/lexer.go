@@ -7,46 +7,14 @@ import (
 
 var errSyntax = errors.New("syntax Error")
 
-type parserFunc func() *Token
+type tokenizerFunc func() TokenType
 
 type lexer struct {
 	line int
 	pos  int
 	end  int
-	// tokens []token
-	str string
-	// c      byte
-	parsers []parserFunc
+	str  string
 }
-
-type TokenType string
-
-const (
-	T_NUM           = "T_NUM"
-	T_SYMBOL        = "T_SYMBOL"
-	T_STRING        = "T_STRING"
-	T_EQUAL         = "T_EQUAL"
-	T_MATH_OPS      = "T_MATH_OPS"
-	T_CMP_OPS       = "T_CMP_OPS"
-	T_FUNC          = "T_FUNC"
-	T_BREAK         = "T_BREAK"
-	T_FOR           = "T_FOR"
-	T_IF            = "T_IF"
-	T_ELSE          = "T_ELSE"
-	T_OPEN_BRACKET  = "T_OPEN_BRACKET"
-	T_CLOSE_BRACKET = "T_CLOSE_BRACKET"
-	T_OPEN_PARS     = "T_OPEN_PARS"
-	T_CLOSE_PARS    = "T_CLOSE_PARS"
-	T_NEWLINE       = "T_NEWLINE"
-	T_COMMENT       = "T_COMMENT"
-	T_COMMA         = "T_COMMA"
-
-	// below are not produced by the lexer.
-	// The parser reassigns tokens with the types below accordingly.
-	// Normally, the parser nodes should have node types, but we don't
-	T_FUNC_CALL   = "T_FUNC_CALL"
-	T_FUNC_SYMBOL = "T_FUNC_SYMBOL"
-)
 
 type Token struct {
 	Type  TokenType
@@ -57,24 +25,22 @@ type Token struct {
 }
 
 func NewLexer() *lexer {
+	return &lexer{line: 1}
 
-	l := &lexer{line: 1}
+}
 
-	l.parsers = []parserFunc{
+func (l *lexer) Read(s string) (tokens []Token, err error) {
+
+	l.end = len(s)
+	l.str = s
+
+	tokenizers := []tokenizerFunc{
 		l.parseKeyword,
 		l.parseNum,
 		l.parseString,
 		l.parseSymbol,
 		l.parseOps,
 	}
-
-	return l
-
-}
-
-func (l *lexer) Read(s string) (tokens []Token, err error) {
-	l.end = len(s)
-	l.str = s
 
 	for {
 
@@ -84,28 +50,36 @@ func (l *lexer) Read(s string) (tokens []Token, err error) {
 			break
 		}
 
-		pos := l.pos
-		var t *Token
+		start := l.pos
+		var tokenType TokenType
 
-		for _, p := range l.parsers {
-			if t = p(); t != nil {
-				break
+		for _, tr := range tokenizers {
+
+			if tokenType = tr(); tokenType == T_UNKNOWN {
+				l.pos = start
+				continue
 			}
-		}
 
-		if t == nil {
-			err = fmt.Errorf("at line %d: %w", l.line, errSyntax)
-			return
-		} else {
-			t.Start = pos
-			t.End = l.pos
-			t.Line = l.line
-			t.Str = l.str[pos:l.pos]
-			fmt.Printf("token: %v\n", t)
-			tokens = append(tokens, *t)
-			if t.Type == T_NEWLINE {
+			tokens = append(tokens, Token{
+				Type:  tokenType,
+				Start: start,
+				End:   l.pos,
+				Line:  l.line,
+				Str:   l.str[start:l.pos],
+			})
+
+			if tokenType == T_NEWLINE {
 				l.line++
 			}
+
+			fmt.Printf("token: %v\n", tokenType)
+
+			break
+		}
+
+		if tokenType == T_UNKNOWN {
+			err = fmt.Errorf("at line %d: %w", l.line, errSyntax)
+			return
 		}
 	}
 
@@ -116,26 +90,26 @@ func (l *lexer) done() bool {
 	return l.pos >= l.end
 }
 
-func (l *lexer) doneN(n int) bool {
-	return (l.pos + n) >= l.end
-}
-
-func (l *lexer) next() bool {
-	l.pos++
-	return l.done()
-}
-
 func (l *lexer) nextN(n int) bool {
 	l.pos += n
 	return l.done()
 }
 
-func (l *lexer) canPeek() bool {
-	return (l.pos + 1) < l.end
+func (l *lexer) next() bool {
+	return l.nextN(1)
+}
+
+func (l *lexer) peekN(n int) byte {
+
+	if (l.pos + n) < l.end {
+		return l.str[l.pos+n]
+	}
+
+	return 0
 }
 
 func (l *lexer) peek() byte {
-	return l.str[l.pos+1]
+	return l.peekN(1)
 }
 
 func (l *lexer) current() byte {

@@ -13,13 +13,6 @@ func name(a,b) {}
 
 func (p *parser) parseFunc(b *Block) (root *Node) {
 
-	pos := p.pos
-	defer func() {
-		if root == nil {
-			p.pos = pos
-		}
-	}()
-
 	if p.current().Type != lexer.T_FUNC {
 		return nil
 	}
@@ -145,18 +138,11 @@ body:
 }
 
 /*
-	asd()
-	asd(a)
-	asd(a,b)
+f()
+f(a)
+f(a,b)
 */
 func (p *parser) parseCall(b *Block) (root *Node) {
-
-	pos := p.pos
-	defer func() {
-		if root == nil {
-			p.pos = pos
-		}
-	}()
 
 	callToken := p.current()
 

@@ -7,13 +7,6 @@ import (
 
 func (p *parser) parseIf(b *Block) (root *Node) {
 
-	pos := p.pos
-	defer func() {
-		if root == nil {
-			p.pos = pos
-		}
-	}()
-
 	ifToken := p.current()
 
 	if p.current().Type != lexer.T_IF {

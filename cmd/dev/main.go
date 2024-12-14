@@ -56,6 +56,8 @@ for x < 1500 {
 	if x > 1500 {
 		x = 0  // this is a comment
 	}
+
+	print(x)
 }
 `
 

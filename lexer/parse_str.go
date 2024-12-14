@@ -1,8 +1,6 @@
 package lexer
 
-func (l *lexer) parseString() *Token {
-
-	pos := l.pos
+func (l *lexer) parseString() TokenType {
 
 	// "*"
 	if l.current() == '"' {
@@ -14,11 +12,10 @@ func (l *lexer) parseString() *Token {
 
 			if l.current() == '"' {
 				l.next()
-				return &Token{Type: T_STRING}
+				return T_STRING
 			}
 		}
 	}
 
-	l.pos = pos
-	return nil
+	return T_UNKNOWN
 }

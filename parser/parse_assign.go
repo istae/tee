@@ -10,13 +10,6 @@ VAR = EXP
 */
 func (p *parser) parseAssign(b *Block) (root *Node) {
 
-	pos := p.pos
-	defer func() {
-		if root == nil { // reset pos if tokens cannot be processed
-			p.pos = pos
-		}
-	}()
-
 	if p.current().Type != lexer.T_SYMBOL {
 		return nil
 	}
@@ -66,13 +59,6 @@ EXP -> VAR | NUM | FUNC_CALL
 EXP -> EXP OP EXP
 */
 func (p *parser) parseExpression(b *Block) (root *Node) {
-
-	pos := p.pos
-	defer func() {
-		if root == nil {
-			p.pos = pos
-		}
-	}()
 
 	var leftNode *Node
 

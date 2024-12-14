@@ -32,13 +32,6 @@ func (p *parser) parseBreak(b *Block) (root *Node) {
 
 func (p *parser) parseFor(b *Block) (root *Node) {
 
-	pos := p.pos
-	defer func() {
-		if root == nil {
-			p.pos = pos
-		}
-	}()
-
 	forToken := p.current()
 
 	if p.current().Type != lexer.T_FOR {

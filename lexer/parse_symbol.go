@@ -1,10 +1,10 @@
 package lexer
 
 // [a-b, A-b]+
-func (l *lexer) parseSymbol() *Token {
+func (l *lexer) parseSymbol() TokenType {
 
 	if !isAlpha(l.current()) {
-		return nil
+		return T_UNKNOWN
 	}
 
 	for {
@@ -17,5 +17,5 @@ func (l *lexer) parseSymbol() *Token {
 		}
 	}
 
-	return &Token{Type: T_SYMBOL}
+	return T_SYMBOL
 }

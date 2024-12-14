@@ -1,10 +1,10 @@
 package lexer
 
 // [0-9]+(.[0-9])?
-func (l *lexer) parseNum() *Token {
+func (l *lexer) parseNum() TokenType {
 
 	if !isDigit(l.current()) {
-		return nil
+		return T_UNKNOWN
 	}
 
 	for {
@@ -17,7 +17,7 @@ func (l *lexer) parseNum() *Token {
 		}
 	}
 
-	if !l.done() && l.current() == '.' && l.canPeek() && isDigit(l.peek()) {
+	if !l.done() && l.current() == '.' && isDigit(l.peek()) {
 
 		for {
 			if l.next() {
@@ -32,7 +32,7 @@ func (l *lexer) parseNum() *Token {
 		// 	l.pos = pos
 		// 	return nil
 		// }
-		return &Token{Type: T_NUM}
+		return T_NUM
 
 	}
 
@@ -41,5 +41,5 @@ func (l *lexer) parseNum() *Token {
 	// 	return nil
 	// }
 
-	return &Token{Type: T_NUM}
+	return T_NUM
 }

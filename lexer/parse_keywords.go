@@ -2,18 +2,16 @@ package lexer
 
 import "strings"
 
-func (l *lexer) parseKeyword() *Token {
-
-	pos := l.pos
+func (l *lexer) parseKeyword() TokenType {
 
 	// newline
 	if l.current() == '\n' {
 		l.next()
-		return &Token{Type: T_NEWLINE}
+		return T_NEWLINE
 	}
 
 	// comment
-	if l.current() == '/' && l.canPeek() && l.peek() == '/' {
+	if l.current() == '/' && l.peek() == '/' {
 		for {
 			if l.next() {
 				break
@@ -21,68 +19,64 @@ func (l *lexer) parseKeyword() *Token {
 
 			if l.current() == '\n' {
 				l.next()
-				return &Token{Type: T_COMMENT}
+				return T_COMMENT
 			}
 		}
 
-		l.pos = pos
-		return nil
+		return T_UNKNOWN
 	}
 
 	if l.current() == '{' {
 		l.next()
-		return &Token{Type: T_OPEN_BRACKET}
+		return T_OPEN_BRACKET
 	}
 
 	if l.current() == '}' {
 		l.next()
-		return &Token{Type: T_CLOSE_BRACKET}
+		return T_CLOSE_BRACKET
 	}
 
 	if strings.HasPrefix(l.str[l.pos:], "if") {
 		l.nextN(3)
-		return &Token{Type: T_IF}
+		return T_IF
 	}
 
 	if strings.HasPrefix(l.str[l.pos:], "for") {
-		l.nextN(3)
-		if isWhiteSpace(l.current(), false) {
-			return &Token{Type: T_FOR}
+		if isWhiteSpace(l.peekN(3), false) {
+			l.nextN(3)
+			return T_FOR
 		}
-		l.pos = pos
 	}
 
 	if strings.HasPrefix(l.str[l.pos:], "func") {
-		l.nextN(4)
-		if isWhiteSpace(l.current(), false) {
-			return &Token{Type: T_FUNC}
+		if isWhiteSpace(l.peekN(4), false) {
+			l.nextN(4)
+			return T_FUNC
 		}
-		l.pos = pos
 	}
 
 	if strings.HasPrefix(l.str[l.pos:], "break") {
-		l.nextN(5)
-		if isWhiteSpace(l.current(), true) {
-			return &Token{Type: T_BREAK}
+		if isWhiteSpace(l.peekN(5), true) {
+			l.nextN(5)
+			return T_BREAK
 		}
-		l.pos = pos
 	}
 
 	if l.current() == '(' {
 		l.next()
-		return &Token{Type: T_OPEN_PARS}
+		return T_OPEN_PARS
 	}
 
 	if l.current() == ')' {
 		l.next()
-		return &Token{Type: T_CLOSE_PARS}
+		return T_CLOSE_PARS
 	}
 
 	if l.current() == ',' {
 		l.next()
-		return &Token{Type: T_COMMA}
+		return T_COMMA
 	}
 
-	l.pos = pos
-	return nil
+	return T_UNKNOWN
+
 }
